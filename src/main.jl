@@ -4,12 +4,18 @@ function hit_sphere(center::point3, radius::Float64, r::ray)
     b = 2.0 * dot(oc, direction(r))
     c = dot(oc, oc) - radius*radius
     discriminant = b*b - 4*a*c
-    return discriminant > 0
+    if discriminant < 0
+        return -1.0
+    else
+        return (-b - sqrt(discriminant)) / (2.0 * a)
+    end
 end
 
 function ray_color(r::ray)
-    if hit_sphere(point3(0,0,-1), 0.5, r)
-        return color(1,0,0)
+    t = hit_sphere(point3(0,0,-1), 0.5, r)
+    if t > 0.0
+        N = unit_vector(at(r, t) - vec3(0,0,-1))
+        return 0.5 * color(N.x+1, N.y+1, N.z+1)
     end
     unit_direction = unit_vector(direction(r))
     t = 0.5*(unit_direction.y + 1.0)
