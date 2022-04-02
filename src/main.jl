@@ -11,15 +11,8 @@ function main()
         print(stderr, "\rScanlines remaining: ", j, ' ')
         flush(stderr)
         for i in 0:image_width-1
-            r = i / (image_width-1)
-            g = j / (image_height-1)
-            b = 0.25
-
-            ir = trunc(Int, 255.999 * r)
-            ig = trunc(Int, 255.999 * g)
-            ib = trunc(Int, 255.999 * b)
-
-            print(stdout, ir, ' ', ig, ' ', ib, '\n')
+            pixel_color = color(i / (image_width-1), j / (image_height-1), 0.25)
+            write_color(stdout, pixel_color)
         end
     end
 
