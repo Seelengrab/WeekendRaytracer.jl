@@ -4,6 +4,7 @@ mutable struct hit_record
     t::Float64
     front_face::Bool
 end
+hit_record() = hit_record(point3(0,0,0),vec3(0,0,0),-Inf,false)
 
 function set_face_normal!(hr::hit_record, r::ray, outward_normal::vec3)
     hr.front_face = dot(direction(r), outward_normal) < 0
