@@ -13,22 +13,16 @@ function main()
     aspect_ratio = 16 / 9
     image_width = 400
     image_height = trunc(Int, image_width / aspect_ratio)
-    start_time = now()
+    samples_per_pixel = 100
 
     # World
     world = hittable_list()
     add!(world, sphere(point3(0,0,-1), 0.5))
     add!(world, sphere(point3(0,-100.5,-1), 100))
 
+    start_time = now()
     # Camera
-    viewport_height = 2.0
-    viewport_width = aspect_ratio * viewport_height
-    focal_length = 1.0
-
-    origin = point3(0,0,0)
-    horizontal = vec3(viewport_width,0,0)
-    vertical = vec3(0,viewport_height,0)
-    lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0,0,focal_length)
+    cam = camera()
 
     # Render
     print(stdout, "P3\n", image_width, ' ', image_height, "\n255\n")
@@ -37,11 +31,14 @@ function main()
         print(stderr, "\rScanlines remaining: ", j, ' ')
         flush(stderr)
         for i in 0:image_width-1
-            u = i / (image_width-1)
-            v = j / (image_height-1)
-            r = ray(origin, lower_left_corner + u*horizontal + v*vertical - origin)
-            pixel_color = ray_color(r, world)
-            write_color(stdout, pixel_color)
+            pixel_color = color(0,0,0)
+            for _ in 0:samples_per_pixel
+                u = (i + rand(Float64)) / (image_width-1)
+                v = (j + rand(Float64)) / (image_height-1)
+                r = get_ray(cam, u, v)
+                pixel_color += ray_color(r, world)
+            end
+            write_color(stdout, pixel_color, samples_per_pixel)
         end
     end
 
