@@ -1,13 +1,14 @@
 function hit_sphere(center::point3, radius::Float64, r::ray)
     oc = origin(r) - center
-    a = dot(direction(r), direction(r))
-    b = 2.0 * dot(oc, direction(r))
-    c = dot(oc, oc) - radius*radius
-    discriminant = b*b - 4*a*c
+    a = length²(direction(r))
+    half_b = dot(oc, direction(r))
+    c = length²(oc) - radius*radius
+    discriminant = half_b*half_b - a*c
+
     if discriminant < 0
         return -1.0
     else
-        return (-b - sqrt(discriminant)) / (2.0 * a)
+        return (-half_b - sqrt(discriminant)) / a
     end
 end
 
