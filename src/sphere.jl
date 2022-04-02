@@ -4,7 +4,7 @@ struct sphere <: hittable
 end
 sphere() = sphere(point3(0,0,0), 0)
 
-function hit(s::sphere, r::ray, t_min::Real, t_max::Real, rec::hit_record)
+function hit(s::sphere, r::ray, t_min::Real, t_max::Real, rec::Ref{hit_record})
     oc = origin(r) - s.center
     a = length²(direction(r))
     half_b = dot(oc, direction(r))
@@ -22,10 +22,10 @@ function hit(s::sphere, r::ray, t_min::Real, t_max::Real, rec::hit_record)
         end
     end
 
-    rec.t = root
-    rec.p = at(r, rec.t)
-    outward_normal =(rec.p - s.center) / s.radius
-    set_face_normal!(rec, outward_normal)
+    rec[].t = root
+    rec[].p = at(r, rec[].t)
+    outward_normal =(rec[].p - s.center) / s.radius
+    set_face_normal!(rec[], outward_normal)
 
     return true
 end

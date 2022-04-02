@@ -13,8 +13,8 @@ end
 abstract type hittable end
 
 """
-    hit(::hittable, ::ray, t_min::Real, t_max::Real, ::hit_record)
+    hit(::hittable, ::ray, t_min::Real, t_max::Real, ::Ref{hit_record})
 
 Returns whether or not the given `<: hittable` is hit by the given ray.
 """
-function hit(h::hittable, r::ray, t_min::Float64, t_max::Float64, rec::hit_record) end
+function hit end
