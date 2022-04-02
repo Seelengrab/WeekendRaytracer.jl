@@ -1,8 +1,37 @@
+function hit_sphere(center::point3, radius::Float64, r::ray)
+    oc = origin(r) - center
+    a = dot(direction(r), direction(r))
+    b = 2.0 * dot(oc, direction(r))
+    c = dot(oc, oc) - radius*radius
+    discriminant = b*b - 4*a*c
+    return discriminant > 0
+end
+
+function ray_color(r::ray)
+    if hit_sphere(point3(0,0,-1), 0.5, r)
+        return color(1,0,0)
+    end
+    unit_direction = unit_vector(direction(r))
+    t = 0.5*(unit_direction.y + 1.0)
+    return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
+end
+
 function main()
     # Image
-    image_width = 256
-    image_height = 256
+    aspect_ratio = 16 / 9
+    image_width = 400
+    image_height = trunc(Int, image_width / aspect_ratio)
     start_time = now()
+
+    # Camera
+    viewport_height = 2.0
+    viewport_width = aspect_ratio * viewport_height
+    focal_length = 1.0
+
+    origin = point3(0,0,0)
+    horizontal = vec3(viewport_width,0,0)
+    vertical = vec3(0,viewport_height,0)
+    lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0,0,focal_length)
 
     # Render
     print(stdout, "P3\n", image_width, ' ', image_height, "\n255\n")
@@ -11,7 +40,10 @@ function main()
         print(stderr, "\rScanlines remaining: ", j, ' ')
         flush(stderr)
         for i in 0:image_width-1
-            pixel_color = color(i / (image_width-1), j / (image_height-1), 0.25)
+            u = i / (image_width-1)
+            v = j / (image_height-1)
+            r = ray(origin, lower_left_corner + u*horizontal + v*vertical - origin)
+            pixel_color = ray_color(r)
             write_color(stdout, pixel_color)
         end
     end
