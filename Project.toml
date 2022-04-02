@@ -2,3 +2,6 @@ name = "WeekendRaytracer"
 uuid = "04d0fde1-a02f-4a3a-b9d2-cbca553de179"
 authors = ["Sukera <Seelengrab@users.noreply.github.com>"]
 version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
