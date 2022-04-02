@@ -16,6 +16,6 @@ abstract type hittable end
 """
     hit(::hittable, ::ray, t_min::Real, t_max::Real, ::Ref{hit_record})
 
-Returns whether or not the given `<: hittable` is hit by the given ray.
+Returns whether or not the given `<: hittable` is hit by the given ray. Saves the resulting data in the given `hit_record`.
 """
 function hit end
