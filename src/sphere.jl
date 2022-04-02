@@ -24,8 +24,8 @@ function hit(s::sphere, r::ray, t_min::Real, t_max::Real, rec::Ref{hit_record})
 
     rec[].t = root
     rec[].p = at(r, rec[].t)
-    outward_normal =(rec[].p - s.center) / s.radius
-    set_face_normal!(rec[], outward_normal)
+    outward_normal = (rec[].p - s.center) / s.radius
+    set_face_normal!(rec[], r, outward_normal)
 
     return true
 end

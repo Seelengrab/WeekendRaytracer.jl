@@ -12,10 +12,10 @@ function hit(list::hittable_list, r::ray, t_min::Real, t_max::Real, rec::Ref{hit
     closest_so_far = t_max
 
     for object in list.objects
-        if hit(object, t_min, closest_so_far, temp_rec)
+        if hit(object, r, t_min, closest_so_far, temp_rec)
             hit_anything = true
-            closest_so_far = temp_rec.t
-            rec[] = temp_rec
+            closest_so_far = temp_rec[].t
+            rec[] = temp_rec[]
         end
     end
 

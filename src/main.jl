@@ -1,22 +1,7 @@
-function hit_sphere(center::point3, radius::Float64, r::ray)
-    oc = origin(r) - center
-    a = length²(direction(r))
-    half_b = dot(oc, direction(r))
-    c = length²(oc) - radius*radius
-    discriminant = half_b*half_b - a*c
-
-    if discriminant < 0
-        return -1.0
-    else
-        return (-half_b - sqrt(discriminant)) / a
-    end
-end
-
-function ray_color(r::ray)
-    t = hit_sphere(point3(0,0,-1), 0.5, r)
-    if t > 0.0
-        N = unit_vector(at(r, t) - vec3(0,0,-1))
-        return 0.5 * color(N.x+1, N.y+1, N.z+1)
+function ray_color(r::ray, world::hittable)
+    rec = Ref(hit_record())
+    if hit(world, r, 0, Inf, rec)
+        return 0.5 * (rec[].normal + color(1,1,1))
     end
     unit_direction = unit_vector(direction(r))
     t = 0.5*(unit_direction.y + 1.0)
@@ -29,6 +14,11 @@ function main()
     image_width = 400
     image_height = trunc(Int, image_width / aspect_ratio)
     start_time = now()
+
+    # World
+    world = hittable_list()
+    add!(world, sphere(point3(0,0,-1), 0.5))
+    add!(world, sphere(point3(0,-100.5,-1), 100))
 
     # Camera
     viewport_height = 2.0
@@ -50,7 +40,7 @@ function main()
             u = i / (image_width-1)
             v = j / (image_height-1)
             r = ray(origin, lower_left_corner + u*horizontal + v*vertical - origin)
-            pixel_color = ray_color(r)
+            pixel_color = ray_color(r, world)
             write_color(stdout, pixel_color)
         end
     end
