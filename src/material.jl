@@ -5,6 +5,11 @@ abstract type material end
 """
 function scatter end
 
+
+####
+# Solid Color
+###
+
 struct lambertian <: material
     albedo::color
 end
@@ -22,6 +27,10 @@ function scatter(mat::lambertian, _, rec)
     return true, scattered, attenuation
 end
 
+####
+# Metal/Shiny
+####
+
 struct metal <: material
     albedo::color
     fuzz::Float64
@@ -34,4 +43,23 @@ function scatter(mat::metal, r_in::ray, rec)
     attenuation = mat.albedo
     scat = dot(direction(scattered), rec.normal) > 0
     return scat, scattered, attenuation
+end
+
+####
+# Dielectric/Glassy
+####
+
+struct dielectric <: material
+    ir::Float64
+end
+
+function scatter(mat::dielectric, r_in::ray, rec)
+    attenuation = color(1,1,1)
+    refraction_ratio = rec.front_face ? (1.0/mat.ir) : mat.ir
+
+    unit_direction = unit_vector(direction(r_in))
+    refracted = refract(unit_direction, rec.normal, refraction_ratio)
+
+    scattered = ray(rec.p, refracted)
+    return true, scattered, attenuation
 end

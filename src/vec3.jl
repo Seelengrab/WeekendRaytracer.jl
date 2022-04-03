@@ -49,6 +49,13 @@ function reflect(v::vec3, n::vec3)
     return v - 2*dot(v,n)*n
 end
 
+function refract(uv::vec3, n::vec3, etai_over_etat::Float64)
+    cos_theta = min(dot(-uv, n), 1.0)
+    r_out_perp = etai_over_etat * (uv + cos_theta*n)
+    r_out_parallel = -sqrt(abs(1.0 - length²(r_out_perp))) * n
+    return r_out_perp + r_out_parallel
+end
+
 ######
 # Random generation of vec3
 #####
