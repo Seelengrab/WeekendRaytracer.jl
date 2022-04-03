@@ -1,6 +1,7 @@
 module WeekendRaytracer
 
 using Dates
+using Random
 
 include("vec3.jl")
 include("color.jl")

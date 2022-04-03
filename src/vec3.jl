@@ -33,3 +33,37 @@ function cross(u::vec3, v::vec3)
 end
 
 unit_vector(v::vec3) = v / length(v)
+
+function Base.rand(rng::AbstractRNG, _::Random.SamplerType{vec3})
+    vec3(rand(rng, Float64),rand(rng, Float64),rand(rng, Float64))
+end
+
+struct BoundedFloat64
+    min::Float64
+    max::Float64
+end
+Base.eltype(::Type{BoundedFloat64}) = Float64
+Base.rand(rng::AbstractRNG, b::Random.SamplerTrivial{BoundedFloat64}) = b[].min + (b[].max - b[].min) * rand(Float64)
+Random.Sampler(rng::Type{<:AbstractRNG}, bf64::BoundedFloat64, r::Random.Repetition) = Random.SamplerTrivial(bf64)
+
+struct BoundedVec3
+    bound::BoundedFloat64
+    BoundedVec3(min::Real, max::Real) = new(BoundedFloat64(float(min), float(max)))
+end
+Base.eltype(::Type{BoundedVec3}) = vec3
+Random.Sampler(rng::Type{<:AbstractRNG}, bv3::BoundedVec3, r::Random.Repetition) = Random.SamplerTrivial(bv3)
+
+function Random.rand(rng::AbstractRNG, sp::Random.SamplerTrivial{BoundedVec3})
+    vec3(rand(rng, sp[].bound), rand(rng, sp[].bound), rand(rng, sp[].bound))
+end
+
+struct UnitSphere end
+Base.eltype(::Type{UnitSphere}) = vec3
+Random.Sampler(rng::Type{<:AbstractRNG}, _::UnitSphere, r::Random.Repetition) = Random.SamplerTrivial(UnitSphere())
+function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{UnitSphere})
+    while true
+        p = rand(rng, BoundedVec3(-1,1))
+        length²(p) >= 1.0 && continue
+        return p
+    end
+end
