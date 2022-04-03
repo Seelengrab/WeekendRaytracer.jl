@@ -62,7 +62,7 @@ function scatter(mat::dielectric, r_in::ray, rec)
     sin_theta = sqrt(1.0 - cos_theta*cos_theta)
 
     cannot_refract = refraction_ratio * sin_theta > 1.0
-    dir = if cannot_refract
+    dir = if cannot_refract || reflectance(cos_theta, refraction_ratio) > rand(Float64)
         reflect(unit_direction, rec.normal)
     else
         refract(unit_direction, rec.normal, refraction_ratio)
@@ -70,4 +70,11 @@ function scatter(mat::dielectric, r_in::ray, rec)
 
     scattered = ray(rec.p, dir)
     return true, scattered, attenuation
+end
+
+function reflectance(cosine::Float64, ref_idx::Float64)
+    # Schlick's approximation for reflectance
+    r0 = (1-ref_idx) / (1+ref_idx)
+    r0 *= r0
+    return r0 + (1-r0)*(1-cosine)^5
 end
