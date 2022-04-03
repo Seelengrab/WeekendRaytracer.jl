@@ -7,7 +7,7 @@ function ray_color(r::ray, world::hittable, depth::Int)
     rec = hit_record()
 
     if hit(world, r, 0.001, Inf, rec)
-        target = rec.p + rec.normal + rand(UnitSphere())
+        target = rec.p + rec.normal + rand(UnitVector())
         return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth-1)
     end
 

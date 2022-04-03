@@ -38,6 +38,9 @@ function Base.rand(rng::AbstractRNG, _::Random.SamplerType{vec3})
     vec3(rand(rng, Float64),rand(rng, Float64),rand(rng, Float64))
 end
 
+"""
+A type for picking a random Float64 in [min, max).
+"""
 struct BoundedFloat64
     min::Float64
     max::Float64
@@ -46,6 +49,9 @@ Base.eltype(::Type{BoundedFloat64}) = Float64
 Base.rand(rng::AbstractRNG, b::Random.SamplerTrivial{BoundedFloat64}) = b[].min + (b[].max - b[].min) * rand(Float64)
 Random.Sampler(rng::Type{<:AbstractRNG}, bf64::BoundedFloat64, r::Random.Repetition) = Random.SamplerTrivial(bf64)
 
+"""
+A type for picking a random vector with bounded coordinates.
+"""
 struct BoundedVec3
     bound::BoundedFloat64
     BoundedVec3(min::Real, max::Real) = new(BoundedFloat64(float(min), float(max)))
@@ -57,13 +63,24 @@ function Random.rand(rng::AbstractRNG, sp::Random.SamplerTrivial{BoundedVec3})
     vec3(rand(rng, sp[].bound), rand(rng, sp[].bound), rand(rng, sp[].bound))
 end
 
-struct UnitSphere end
-Base.eltype(::Type{UnitSphere}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, _::UnitSphere, r::Random.Repetition) = Random.SamplerTrivial(UnitSphere())
-function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{UnitSphere})
+"""
+A singleton type for picking a random vector in the unit sphere.
+"""
+struct InUnitSphere end
+Base.eltype(::Type{InUnitSphere}) = vec3
+Random.Sampler(rng::Type{<:AbstractRNG}, _::InUnitSphere, r::Random.Repetition) = Random.SamplerTrivial(InUnitSphere())
+function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitSphere})
     while true
         p = rand(rng, BoundedVec3(-1,1))
         length²(p) >= 1.0 && continue
         return p
     end
 end
+
+"""
+A singleton type for picking a random vector with length 1.
+"""
+struct UnitVector end
+Base.eltype(::Type{UnitVector}) = vec3
+Random.Sampler(rng::Type{<:AbstractRNG}, _::UnitVector, r::Random.Repetition) = Random.SamplerTrivial(UnitVector())
+Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{UnitVector}) = unit_vector(rand(rng, InUnitSphere()))
