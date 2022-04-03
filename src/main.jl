@@ -37,6 +37,7 @@ function main(io_out=stdout)
     add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, mat_ground))
     add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, mat_center))
     add!(world, sphere(point3(-1.0,    0.0, -1.0),   0.5, mat_left))
+    add!(world, sphere(point3(-1.0,    0.0, -1.0),  -0.4, mat_left))
     add!(world, sphere(point3( 1.0,    0.0, -1.0),   0.5, mat_right))
 
     # Camera
