@@ -30,9 +30,9 @@ function main(io_out=stdout)
     world = hittable_list()
 
     mat_ground = lambertian(color(0.8,0.8,0.0))
-    mat_center = dielectric(1.5)
+    mat_center = lambertian(color(0.1,0.2,0.5))
     mat_left = dielectric(1.5)
-    mat_right = metal(color(0.8,0.6,0.2), 1.0)
+    mat_right = metal(color(0.8,0.6,0.2), 0.0)
 
     add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, mat_ground))
     add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, mat_center))

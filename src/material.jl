@@ -58,8 +58,16 @@ function scatter(mat::dielectric, r_in::ray, rec)
     refraction_ratio = rec.front_face ? (1.0/mat.ir) : mat.ir
 
     unit_direction = unit_vector(direction(r_in))
-    refracted = refract(unit_direction, rec.normal, refraction_ratio)
+    cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
+    sin_theta = sqrt(1.0 - cos_theta*cos_theta)
 
-    scattered = ray(rec.p, refracted)
+    cannot_refract = refraction_ratio * sin_theta > 1.0
+    dir = if cannot_refract
+        reflect(unit_direction, rec.normal)
+    else
+        refract(unit_direction, rec.normal, refraction_ratio)
+    end
+
+    scattered = ray(rec.p, dir)
     return true, scattered, attenuation
 end
