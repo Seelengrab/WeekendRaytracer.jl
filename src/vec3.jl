@@ -100,6 +100,20 @@ function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitSphere})
 end
 
 """
+A singleton type for picking a random vector in the unit disk.
+"""
+struct InUnitDisk end
+Base.eltype(::Type{InUnitDisk}) = vec3
+Random.Sampler(_::Type{<:AbstractRNG}, ud::InUnitDisk) = Random.SamplerTrivial(ud)
+function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitDisk})
+    while true
+        p = vec3(rand(BoundedFloat64(-1,1)),rand(BoundedFloat64(-1,1)), 0)
+        length²(p) >= 1 && continue
+        return p
+    end
+end
+
+"""
 A singleton type for picking a random vector with length 1.
 """
 struct UnitVector end

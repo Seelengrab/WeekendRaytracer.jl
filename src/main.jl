@@ -41,7 +41,12 @@ function main(io_out=stdout)
     add!(world, sphere(point3( 1.0,    0.0, -1.0),   0.5, material_right))
 
     # Camera
-    cam = camera(point3(-2,2,1), point3(0,0,-1), vec3(0,1,0), 20.0, aspect_ratio)
+    lookfrom = point3(3,3,2)
+    lookat =point3(0,0,-1)
+    vup = vec3(0,1,0)
+    dist_to_focus = length((lookfrom - lookat))
+    aperture = 2.0
+    cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
     # Render
     start_time = now()
