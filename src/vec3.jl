@@ -68,7 +68,7 @@ A singleton type for picking a random vector in the unit sphere.
 """
 struct InUnitSphere end
 Base.eltype(::Type{InUnitSphere}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, _::InUnitSphere, r::Random.Repetition) = Random.SamplerTrivial(InUnitSphere())
+Random.Sampler(rng::Type{<:AbstractRNG}, us::InUnitSphere) = Random.SamplerTrivial(us)
 function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitSphere})
     while true
         p = rand(rng, BoundedVec3(-1,1))
@@ -82,5 +82,23 @@ A singleton type for picking a random vector with length 1.
 """
 struct UnitVector end
 Base.eltype(::Type{UnitVector}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, _::UnitVector, r::Random.Repetition) = Random.SamplerTrivial(UnitVector())
+Random.Sampler(rng::Type{<:AbstractRNG}, us::UnitVector) = Random.SamplerTrivial(us)
 Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{UnitVector}) = unit_vector(rand(rng, InUnitSphere()))
+
+"""
+A type for picking a random vector in the same hemisphere as the given normal.
+"""
+struct InHemisphere
+    normal::vec3
+end
+Base.eltype(::Type{InHemisphere}) = vec3
+Random.Sampler(rng::Type{<:AbstractRNG}, hemi::InHemisphere, r::Random.Repetition) = Random.SamplerTrivial(hemi)
+function Random.rand(rng::AbstractRNG, sp::Random.SamplerTrivial{InHemisphere})
+    in_unit_sphere = rand(rng, InUnitSphere())
+
+    if dot(in_unit_sphere, sp[].normal) > 0.0
+        return in_unit_sphere
+    else
+        return -in_unit_sphere
+    end
+end
