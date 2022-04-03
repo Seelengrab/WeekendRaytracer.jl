@@ -4,11 +4,13 @@ function ray_color(r::ray, world::hittable, depth::Int)
         return color(0,0,0)
     end
 
-    rec = hit_record()
-
-    if hit(world, r, 0.001, Inf, rec)
-        target = rec.p + rec.normal + rand(UnitVector())
-        return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth-1)
+    got_hit, rec = hit(world, r, 0.001, Inf)
+    if got_hit
+        scat, scattered, attenuation = scatter(rec.mat, r, rec)
+        if scat
+            return attenuation * ray_color(scattered, world, depth-1)
+        end
+        return color(0,0,0)
     end
 
     unit_direction = unit_vector(direction(r))
@@ -26,8 +28,16 @@ function main(io_out=stdout)
 
     # World
     world = hittable_list()
-    add!(world, sphere(point3(0,0,-1), 0.5))
-    add!(world, sphere(point3(0,-100.5,-1), 100))
+
+    mat_ground = lambertian(color(0.8,0.8,0.0))
+    mat_center = lambertian(color(0.7,0.3,0.3))
+    mat_left = metal(color(0.8,0.8,0.8))
+    mat_right = metal(color(0.8,0.6,0.2))
+
+    add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, mat_ground))
+    add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, mat_center))
+    add!(world, sphere(point3(-1.0,    0.0, -1.0),   0.5, mat_left))
+    add!(world, sphere(point3( 1.0,    0.0, -1.0),   0.5, mat_right))
 
     # Camera
     cam = camera()

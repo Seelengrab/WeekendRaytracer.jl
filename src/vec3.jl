@@ -4,6 +4,8 @@ struct vec3
     z::Float64
 end
 
+## Methods
+
 Base.:-(v::vec3) = vec3(-v.x, -v.y, -v.z)
 Base.getindex(v::vec3, i::Int) = getfield(v, i)
 Base.:+(this::vec3, v::vec3) = vec3(this.x + v.x, this.y + v.y, this.z + v.z)
@@ -37,6 +39,19 @@ unit_vector(v::vec3) = v / length(v)
 function Base.rand(rng::AbstractRNG, _::Random.SamplerType{vec3})
     vec3(rand(rng, Float64),rand(rng, Float64),rand(rng, Float64))
 end
+
+function near_zero(v::vec3)
+    s = 1e-8
+    return abs(v.x) < s && abs(v.y) < s && abs(v.z) < s
+end
+
+function reflect(v::vec3, n::vec3)
+    return v - 2*dot(v,n)*n
+end
+
+######
+# Random generation of vec3
+#####
 
 """
 A type for picking a random Float64 in [min, max).
