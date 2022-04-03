@@ -5,10 +5,12 @@ struct camera
     vertical::vec3
 end
 
-function camera()
-    aspect_ratio = 16 / 9
-    viewport_height = 2.0
+function camera(vfov::Float64, aspect_ratio::Float64)
+    theta = deg2rad(vfov)
+    h = tan(theta/2)
+    viewport_height = 2.0 * h
     viewport_width = aspect_ratio * viewport_height
+
     focal_length = 1.0
 
     origin = point3(0,0,0)

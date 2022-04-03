@@ -27,21 +27,17 @@ function main(io_out=stdout)
     max_depth = 50
 
     # World
+    R = cos(pi/4)
     world = hittable_list()
 
-    mat_ground = lambertian(color(0.8,0.8,0.0))
-    mat_center = lambertian(color(0.1,0.2,0.5))
-    mat_left = dielectric(1.5)
-    mat_right = metal(color(0.8,0.6,0.2), 0.0)
+    material_left = lambertian(color(0,0,1))
+    material_right = lambertian(color(1,0,0))
 
-    add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, mat_ground))
-    add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, mat_center))
-    add!(world, sphere(point3(-1.0,    0.0, -1.0),   0.5, mat_left))
-    add!(world, sphere(point3(-1.0,    0.0, -1.0),  -0.4, mat_left))
-    add!(world, sphere(point3( 1.0,    0.0, -1.0),   0.5, mat_right))
+    add!(world, sphere(point3(-R, 0, -1), R, material_left))
+    add!(world, sphere(point3( R, 0, -1), R, material_right))
 
     # Camera
-    cam = camera()
+    cam = camera(90.0, aspect_ratio)
 
     # Render
     start_time = now()
