@@ -18,34 +18,69 @@ function ray_color(r::ray, world::hittable, depth::Int)
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
 end
 
+function random_scene()
+    world = hittable_list()
+
+    ground_material = lambertian(color(0.5,0.5,0.5))
+    add!(world, sphere(point3(0,-1000,0), 1000, ground_material))
+
+    for a in -11:11
+        for b in -11:11
+            choose_mat = rand(Float64)
+            center = point3(a + 0.9*rand(Float64), 0.2, b + 0.9*rand(Float64))
+
+            if length(center - point3(4,0.2,0)) > 0.9
+                if choose_mat < 0.8
+                    # diffuse
+                    albedo = rand(color) * rand(color)
+                    sphere_material = lambertian(albedo)
+                    add!(world, sphere(center, 0.2, sphere_material))
+                elseif choose_mat < 0.95
+                    # metal
+                    albedo = rand(BoundedVec3(0.5, 1))
+                    fuzz = rand(BoundedFloat64(0, 0.5))
+                    sphere_material = metal(albedo, fuzz)
+                    add!(world, sphere(center, 0.2, sphere_material))
+                else
+                    # glass
+                    sphere_material = dielectric(1.5)
+                    add!(world, sphere(center, 0.2, sphere_material))
+                end
+            end
+        end
+    end
+
+    material1 = dielectric(1.5)
+    add!(world, sphere(point3(0,1,0), 1.0, material1))
+
+    material2 = lambertian(color(0.4,0.2,0.1))
+    add!(world, sphere(point3(-4,1,0), 1.0, material2))
+
+    material3 = metal(color(0.7,0.6,0.5), 0.0)
+    add!(world, sphere(point3(4,1,0), 1.0, material3))
+
+    return world
+end
+
 function main(io_out=stdout)
     # Image
-    aspect_ratio = 16 / 9
-    image_width = 400
+    aspect_ratio = 3 / 2
+    image_width = 1200
     image_height = trunc(Int, image_width / aspect_ratio)
-    samples_per_pixel = 100
+    samples_per_pixel = 500
     max_depth = 50
 
     # World
-    world = hittable_list()
-
-    material_ground = lambertian(color(0.8,0.8,0.0))
-    material_center = lambertian(color(0.1,0.2,0.5))
-    material_left = dielectric(1.5)
-    material_right = metal(color(0.8,0.6,0.2), 0.0)
-
-    add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, material_ground))
-    add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, material_center))
-    add!(world, sphere(point3(-1.0,    0.0, -1.0),   0.5, material_left))
-    add!(world, sphere(point3(-1.0,    0.0, -1.0), -0.45, material_left))
-    add!(world, sphere(point3( 1.0,    0.0, -1.0),   0.5, material_right))
+    worldgen = now()
+    world = random_scene()
+    println(stderr, "World generation took ", now() - worldgen, '.')
 
     # Camera
-    lookfrom = point3(3,3,2)
-    lookat =point3(0,0,-1)
+    lookfrom = point3(13,2,3)
+    lookat = point3(0,0,0)
     vup = vec3(0,1,0)
-    dist_to_focus = length((lookfrom - lookat))
-    aperture = 2.0
+    dist_to_focus = 10.0
+    aperture = 0.1
     cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
     # Render

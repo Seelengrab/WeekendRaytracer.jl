@@ -8,7 +8,7 @@ end
 hit_record() = hit_record(point3(0,0,0),vec3(0,0,0),lambertian(color(0,0,0)),-Inf,false)
 
 function face_normal(r::ray, outward_normal::vec3)
-    ff = dot(direction(r), outward_normal) < 0
+    ff = dot(direction(r), outward_normal) < 0.0
     normal = ff ? outward_normal : -outward_normal
     return ff, normal
 end
