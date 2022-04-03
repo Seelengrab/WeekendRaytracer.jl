@@ -31,8 +31,8 @@ function main(io_out=stdout)
 
     mat_ground = lambertian(color(0.8,0.8,0.0))
     mat_center = lambertian(color(0.7,0.3,0.3))
-    mat_left = metal(color(0.8,0.8,0.8))
-    mat_right = metal(color(0.8,0.6,0.2))
+    mat_left = metal(color(0.8,0.8,0.8), 0.3)
+    mat_right = metal(color(0.8,0.6,0.2), 1.0)
 
     add!(world, sphere(point3( 0.0, -100.5, -1.0), 100.0, mat_ground))
     add!(world, sphere(point3( 0.0,    0.0, -1.0),   0.5, mat_center))

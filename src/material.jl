@@ -24,11 +24,13 @@ end
 
 struct metal <: material
     albedo::color
+    fuzz::Float64
+    metal(c::color, f::Float64) = new(c, min(f, 1.0))
 end
 
 function scatter(mat::metal, r_in::ray, rec)
     reflected = reflect(unit_vector(direction(r_in)), rec.normal)
-    scattered = ray(rec.p, reflected)
+    scattered = ray(rec.p, reflected + mat.fuzz * rand(InUnitSphere()))
     attenuation = mat.albedo
     scat = dot(direction(scattered), rec.normal) > 0
     return scat, scattered, attenuation
