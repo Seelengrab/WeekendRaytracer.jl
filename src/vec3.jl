@@ -46,8 +46,8 @@ struct BoundedFloat64
     max::Float64
 end
 Base.eltype(::Type{BoundedFloat64}) = Float64
-Base.rand(rng::AbstractRNG, b::Random.SamplerTrivial{BoundedFloat64}) = b[].min + (b[].max - b[].min) * rand(Float64)
-Random.Sampler(rng::Type{<:AbstractRNG}, bf64::BoundedFloat64, r::Random.Repetition) = Random.SamplerTrivial(bf64)
+Base.rand(_::AbstractRNG, b::Random.SamplerTrivial{BoundedFloat64}) = b[].min + (b[].max - b[].min) * rand(Float64)
+Random.Sampler(_::Type{<:AbstractRNG}, bf64::BoundedFloat64, r::Random.Repetition) = Random.SamplerTrivial(bf64)
 
 """
 A type for picking a random vector with bounded coordinates.
@@ -57,7 +57,7 @@ struct BoundedVec3
     BoundedVec3(min::Real, max::Real) = new(BoundedFloat64(float(min), float(max)))
 end
 Base.eltype(::Type{BoundedVec3}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, bv3::BoundedVec3, r::Random.Repetition) = Random.SamplerTrivial(bv3)
+Random.Sampler(_::Type{<:AbstractRNG}, bv3::BoundedVec3, r::Random.Repetition) = Random.SamplerTrivial(bv3)
 
 function Random.rand(rng::AbstractRNG, sp::Random.SamplerTrivial{BoundedVec3})
     vec3(rand(rng, sp[].bound), rand(rng, sp[].bound), rand(rng, sp[].bound))
@@ -68,7 +68,7 @@ A singleton type for picking a random vector in the unit sphere.
 """
 struct InUnitSphere end
 Base.eltype(::Type{InUnitSphere}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, us::InUnitSphere) = Random.SamplerTrivial(us)
+Random.Sampler(_::Type{<:AbstractRNG}, us::InUnitSphere) = Random.SamplerTrivial(us)
 function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitSphere})
     while true
         p = rand(rng, BoundedVec3(-1,1))
@@ -82,7 +82,7 @@ A singleton type for picking a random vector with length 1.
 """
 struct UnitVector end
 Base.eltype(::Type{UnitVector}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, us::UnitVector) = Random.SamplerTrivial(us)
+Random.Sampler(_::Type{<:AbstractRNG}, us::UnitVector) = Random.SamplerTrivial(us)
 Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{UnitVector}) = unit_vector(rand(rng, InUnitSphere()))
 
 """
@@ -92,7 +92,7 @@ struct InHemisphere
     normal::vec3
 end
 Base.eltype(::Type{InHemisphere}) = vec3
-Random.Sampler(rng::Type{<:AbstractRNG}, hemi::InHemisphere, r::Random.Repetition) = Random.SamplerTrivial(hemi)
+Random.Sampler(_::Type{<:AbstractRNG}, hemi::InHemisphere, _::Random.Repetition) = Random.SamplerTrivial(hemi)
 function Random.rand(rng::AbstractRNG, sp::Random.SamplerTrivial{InHemisphere})
     in_unit_sphere = rand(rng, InUnitSphere())
 
