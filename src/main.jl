@@ -64,11 +64,11 @@ end
 
 function main(io_out=stdout)
     # Image
-    aspect_ratio = 3 / 2
-    image_width = 1200
+    aspect_ratio = 16 / 9
+    image_width = 320
     image_height = trunc(Int, image_width / aspect_ratio)
-    samples_per_pixel = 500
-    max_depth = 50
+    samples_per_pixel = 32
+    max_depth = 16
 
     # World
     worldgen = now()
@@ -84,6 +84,7 @@ function main(io_out=stdout)
     cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
     # Render
+    output = Matrix{vec3}(undef, image_height, image_width)
     start_time = now()
     print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
@@ -98,10 +99,18 @@ function main(io_out=stdout)
                 r = get_ray(cam, u, v)
                 pixel_color += ray_color(r, world, max_depth)
             end
-            write_color(io_out, pixel_color, samples_per_pixel)
+            output[j+1, i+1] = pixel_color
+        end
+    end
+    render_time = now()
+
+    for r in reverse(axes(output, 1))
+        row = @view output[r, :]
+        for x in row
+            write_color(io_out, x, samples_per_pixel)
         end
     end
 
     print(stderr, "\nDone.\n")
-    print(stderr, "Took ", (now()-start_time), ".\n")
+    print(stderr, "Took ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
 end
