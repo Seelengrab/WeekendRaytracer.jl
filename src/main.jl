@@ -88,18 +88,16 @@ function main(io_out=stdout)
     start_time = now()
     print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
-    for j in image_height-1:-1:0
-        print(stderr, "\rScanlines remaining: ", j, ' ')
-        flush(stderr)
-        for i in 0:image_width-1
-            pixel_color = color(0,0,0)
-            for _ in 0:samples_per_pixel
+    Threads.@threads for i in 1:image_width
+        for j in 1:image_height
+            pixel_color = color(0.0,0.0,0.0)
+            for s in 1:samples_per_pixel
                 u = (i + rand(Float64)) / (image_width-1)
                 v = (j + rand(Float64)) / (image_height-1)
                 r = get_ray(cam, u, v)
                 pixel_color += ray_color(r, world, max_depth)
             end
-            output[j+1, i+1] = pixel_color
+            @inbounds output[j, i] = pixel_color
         end
     end
     render_time = now()
@@ -111,6 +109,5 @@ function main(io_out=stdout)
         end
     end
 
-    print(stderr, "\nDone.\n")
     print(stderr, "Took ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
 end

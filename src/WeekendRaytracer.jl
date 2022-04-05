@@ -1,5 +1,6 @@
 module WeekendRaytracer
 
+using Base.Threads
 using Dates
 using Random
 
