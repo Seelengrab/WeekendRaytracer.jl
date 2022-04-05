@@ -5,7 +5,7 @@ struct sphere <: hittable
 end
 sphere() = sphere(point3(0,0,0), 0, lambertian(color(0,0,0)))
 
-function hit(s::sphere, r::ray, t_min::Real, t_max::Real)
+@inline function hit(s::sphere, r::ray, t_min::Real, t_max::Real)
     oc = origin(r) - s.center
     a = length²(direction(r))
     half_b = dot(oc, direction(r))

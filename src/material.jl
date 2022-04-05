@@ -5,7 +5,6 @@ abstract type material end
 """
 function scatter end
 
-
 ####
 # Solid Color
 ###
@@ -41,7 +40,7 @@ function scatter(mat::metal, r_in::ray, rec)
     reflected = reflect(unit_vector(direction(r_in)), rec.normal)
     scattered = ray(rec.p, reflected + mat.fuzz * rand(InUnitSphere()))
     attenuation = mat.albedo
-    scat = dot(direction(scattered), rec.normal) > 0
+    scat = dot(direction(scattered), rec.normal) > 0.0
     return scat, scattered, attenuation
 end
 

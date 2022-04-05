@@ -4,7 +4,7 @@ function ray_color(r::ray, world::hittable, depth::Int)
         return color(0,0,0)
     end
 
-    got_hit, rec = hit(world, r, 0.001, Inf)
+    got_hit, rec = hit(world, r, 1e-4, Inf)
     if got_hit
         scat, scattered, attenuation = scatter(rec.mat, r, rec)
         if scat
