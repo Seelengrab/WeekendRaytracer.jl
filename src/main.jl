@@ -91,7 +91,7 @@ function main(io_out=stdout)
     Threads.@threads for i in 1:image_width
         for j in 1:image_height
             pixel_color = color(0.0,0.0,0.0)
-            for s in 1:samples_per_pixel
+            for _ in 1:samples_per_pixel
                 u = (i + rand(Float64)) / (image_width-1)
                 v = (j + rand(Float64)) / (image_height-1)
                 r = get_ray(cam, u, v)
