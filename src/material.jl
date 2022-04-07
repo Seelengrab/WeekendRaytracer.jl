@@ -13,7 +13,7 @@ struct lambertian <: material
     albedo::color
 end
 
-function scatter(mat::lambertian, _, rec)
+function scatter(mat::lambertian, r_in::ray, rec)
     scatter_direction = rec.normal + rand(UnitVector())
 
     # Catch degenerate scatter direction
@@ -21,7 +21,7 @@ function scatter(mat::lambertian, _, rec)
         scatter_direction = rec.normal
     end
 
-    scattered = ray(rec.p, scatter_direction)
+    scattered = ray(rec.p, scatter_direction, time(r_in))
     attenuation = mat.albedo
     return true, scattered, attenuation
 end
@@ -38,7 +38,7 @@ end
 
 function scatter(mat::metal, r_in::ray, rec)
     reflected = reflect(unit_vector(direction(r_in)), rec.normal)
-    scattered = ray(rec.p, reflected + mat.fuzz * rand(InUnitSphere()))
+    scattered = ray(rec.p, reflected + mat.fuzz * rand(InUnitSphere()), time(r_in))
     attenuation = mat.albedo
     scat = dot(direction(scattered), rec.normal) > 0.0
     return scat, scattered, attenuation
@@ -67,7 +67,7 @@ function scatter(mat::dielectric, r_in::ray, rec)
         refract(unit_direction, rec.normal, refraction_ratio)
     end
 
-    scattered = ray(rec.p, dir)
+    scattered = ray(rec.p, dir, time(r_in))
     return true, scattered, attenuation
 end
 
