@@ -7,7 +7,10 @@ end
 ## Methods
 
 Base.:-(v::vec3) = vec3(-v.x, -v.y, -v.z)
-Base.getindex(v::vec3, i::Int) = getfield(v, i)
+@inline function Base.getindex(v::vec3, i::Int)
+    @boundscheck 1 <= i <= 3
+    getfield(v, i)
+end
 Base.:+(this::vec3, v::vec3) = vec3(this.x + v.x, this.y + v.y, this.z + v.z)
 Base.:*(this::vec3, t::Real) = vec3(this.x * t, this.y * t, this.z * t)
 Base.:*(t::Real, v::vec3) = v*t
