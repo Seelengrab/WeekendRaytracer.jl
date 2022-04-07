@@ -6,6 +6,7 @@ end
 
 ## Methods
 
+Base.zero(::Type{vec3}) = vec3(0,0,0)
 Base.:-(v::vec3) = vec3(-v.x, -v.y, -v.z)
 @inline function Base.getindex(v::vec3, i::Int)
     @boundscheck 1 <= i <= 3

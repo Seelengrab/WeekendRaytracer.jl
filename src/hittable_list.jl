@@ -42,3 +42,20 @@ function hit(list::Vector{T}, r::ray, t_min::Real, t_max::Real) where T <: hitta
 
     return hit_anything, rec
 end
+
+function bounding_box(hl::hittable_list, t0::Real, t1::Real)
+    isempty(hl) && return false, aabb()
+
+    local temp_box = aabb()
+    first_box = true
+    for list in values(hl)
+        for el in list
+            bounded, box = bounding_box(el, t0, t1)
+            !bounded && return false, aabb()
+            output_box = first_box ? temp_box : surrounding_box(temp_box, box)
+            first_box = false
+        end
+    end
+
+    return true, temp_box
+end

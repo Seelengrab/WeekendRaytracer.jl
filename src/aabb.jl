@@ -1,7 +1,8 @@
 struct aabb
-    maximum::point3
     minimum::point3
+    maximum::point3
 end
+aabb() = aabb(zero(point3), zero(point3))
 
 function hit(bbox::aabb, r::ray, t_min::Float64, t_max::Float64)
     ret = true
@@ -19,4 +20,14 @@ function hit(bbox::aabb, r::ray, t_min::Float64, t_max::Float64)
     end
 
     return ret
+end
+
+function surrounding_box(b0::aabb, b1::aabb)
+    small = point3(min(b0.minimum.x, b1.minimum.x),
+                   min(b0.minimum.y, b1.minimum.y),
+                   min(b0.minimum.z, b1.minimum.z))
+    big = point3(min(b0.minimum.x, b1.minimum.x),
+                 min(b0.minimum.y, b1.minimum.y),
+                 min(b0.minimum.z, b1.minimum.z))
+    return aabb(small, big)
 end
