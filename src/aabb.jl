@@ -4,6 +4,15 @@ struct aabb
 end
 aabb() = aabb(zero(point3), zero(point3))
 
+function box_compare(a::hittable, b::hittable, axis::Int)
+    has_bba, bboxa = bounding_box(a, 0,0)
+    has_bbb, bboxb = bounding_box(b, 0,0)
+
+    (!has_bba || !has_bbb) && throw(ArgumentError("hittable doesn't have a bounding box: '$a'"))
+
+    bboxa.minimum[axis] < bboxb.minimum[axis]
+end
+
 function hit(bbox::aabb, r::ray, t_min::Float64, t_max::Float64)
     ret = true
 
