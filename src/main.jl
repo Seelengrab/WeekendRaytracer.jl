@@ -33,8 +33,9 @@ function random_scene()
                 if choose_mat < 0.8
                     # diffuse
                     albedo = rand(color) * rand(color)
+                    center2 = center + vec3(0, rand(BoundedFloat64(0,.5)), 0)
                     sphere_material = lambertian(albedo)
-                    add!(world, sphere(center, 0.2, sphere_material))
+                    add!(world, moving_sphere(center, center2, 0.0, 1.0, 0.2, sphere_material))
                 elseif choose_mat < 0.95
                     # metal
                     albedo = rand(BoundedVec3(0.5, 1))
@@ -65,10 +66,10 @@ end
 function main(io_out=stdout)
     # Image
     aspect_ratio = 16 / 9
-    image_width = 320
+    image_width = 400
     image_height = trunc(Int, image_width / aspect_ratio)
-    samples_per_pixel = 32
-    max_depth = 16
+    samples_per_pixel = 100
+    max_depth = 50
 
     # World
     worldgen = now()
@@ -81,10 +82,11 @@ function main(io_out=stdout)
     vup = vec3(0,1,0)
     dist_to_focus = 10.0
     aperture = 0.1
-    cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
+    cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0)
 
     # Render
     output = Matrix{vec3}(undef, image_height, image_width)
+    println(stderr, "Starting renderer..")
     start_time = now()
     print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
