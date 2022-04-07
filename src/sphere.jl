@@ -35,3 +35,8 @@ sphere() = sphere(point3(0,0,0), 0, lambertian(color(0,0,0)))
 
     return true, rec
 end
+
+function bounding_box(s::sphere, t0::Real, t1::Real)
+    return true, aabb(s.center - vec3(s.radius, s.radius, s.radius),
+                      s.center + vec3(s.radius, s.radius, s.radius))
+end

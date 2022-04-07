@@ -41,3 +41,13 @@ end
 function center(s::moving_sphere, time::Float64)
     s.center0 + ((time - s.time0) / (s.time1 - s.time0)) * (s.center1 - s.center0)
 end
+
+function bounding_box(ms::moving_sphere, t0::Real, t1::Real)
+    box0 = aabb(
+        center(ms, t0) - vec3(ms.radius,ms.radius,ms.radius),
+        center(ms, t0) + vec3(ms.radius,ms.radius,ms.radius))
+    box1 = aabb(
+        center(ms, t1) - vec3(ms.radius,ms.radius,ms.radius),
+        center(ms, t1) + vec3(ms.radius,ms.radius,ms.radius))
+    return true, surrounding_box(box0, box1)
+end

@@ -21,3 +21,10 @@ abstract type hittable end
 Returns whether or not the given `<: hittable` is hit by the given ray. Saves the resulting data in the given `hit_record`.
 """
 function hit end
+
+"""
+    bounding_box(::hittable, time0::Float64, time1::Float64)
+
+Returns the bounding box for the given `<: hittable`, covering the time interval `[t0,t1]`.
+"""
+function bounding_box end
