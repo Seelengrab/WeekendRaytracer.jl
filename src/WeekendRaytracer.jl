@@ -12,6 +12,7 @@ include("material.jl")
 include("hittable.jl")
 include("hittable_list.jl")
 include("sphere.jl")
+include("moving_sphere.jl")
 include("main.jl")
 
 end # module WeekendRaytracer
