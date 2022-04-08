@@ -23,7 +23,8 @@ function random_scene()
     msphers = moving_sphere[]
 
     ground_material = lambertian(color(0.5,0.5,0.5))
-    push!(spheres, sphere(point3(0,-1000,0), 1000, ground_material))
+    checker = checker_texture(color(0.2,0.3,0.1), color(0.9,0.9,0.9))
+    push!(spheres, sphere(point3(0,-1000,0), 1000, lambertian(checker)))
 
     for a in -11:11
         for b in -11:11

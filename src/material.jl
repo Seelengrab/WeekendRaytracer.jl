@@ -23,7 +23,7 @@ function scatter(mat::lambertian, r_in::ray, rec)
     end
 
     scattered = ray(rec.p, scatter_direction, time(r_in))
-    attenuation = mat.albedo
+    attenuation = value(mat.albedo, rec.u, rec.v, rec.p)
     return true, scattered, attenuation
 end
 
