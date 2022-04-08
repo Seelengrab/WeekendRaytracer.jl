@@ -3,9 +3,11 @@ struct hit_record
     normal::vec3
     mat::material
     t::Float64
+    u::Float64
+    v::Float64
     front_face::Bool
 end
-hit_record() = hit_record(point3(0,0,0),vec3(0,0,0),lambertian(color(0,0,0)),-Inf,false)
+hit_record() = hit_record(point3(0,0,0),vec3(0,0,0),lambertian(color(0,0,0)),-Inf,0.0,0.0,false)
 
 function face_normal(r::ray, outward_normal::vec3)
     ff = dot(direction(r), outward_normal) < 0.0

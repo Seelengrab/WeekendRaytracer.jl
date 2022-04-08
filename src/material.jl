@@ -9,9 +9,10 @@ function scatter end
 # Solid Color
 ###
 
-struct lambertian <: material
-    albedo::color
+struct lambertian{T<:texture} <: material
+    albedo::T
 end
+lambertian(a::color) = lambertian(solid_color(a))
 
 function scatter(mat::lambertian, r_in::ray, rec)
     scatter_direction = rec.normal + rand(UnitVector())
