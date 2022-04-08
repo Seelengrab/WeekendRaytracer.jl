@@ -19,10 +19,11 @@ function ray_color(r::ray, world::hittable, depth::Int)
 end
 
 function random_scene()
-    world = hittable_list()
+    spheres = sphere[]
+    msphers = moving_sphere[]
 
     ground_material = lambertian(color(0.5,0.5,0.5))
-    add!(world, sphere(point3(0,-1000,0), 1000, ground_material))
+    push!(spheres, sphere(point3(0,-1000,0), 1000, ground_material))
 
     for a in -11:11
         for b in -11:11
@@ -35,32 +36,32 @@ function random_scene()
                     albedo = rand(color) * rand(color)
                     center2 = center + vec3(0, rand(BoundedFloat64(0,.5)), 0)
                     sphere_material = lambertian(albedo)
-                    add!(world, moving_sphere(center, center2, 0.0, 1.0, 0.2, sphere_material))
+                    push!(msphers, moving_sphere(center, center2, 0.0, 1.0, 0.2, sphere_material))
                 elseif choose_mat < 0.95
                     # metal
                     albedo = rand(BoundedVec3(0.5, 1))
                     fuzz = rand(BoundedFloat64(0, 0.5))
                     sphere_material = metal(albedo, fuzz)
-                    add!(world, sphere(center, 0.2, sphere_material))
+                    push!(spheres, sphere(center, 0.2, sphere_material))
                 else
                     # glass
                     sphere_material = dielectric(1.5)
-                    add!(world, sphere(center, 0.2, sphere_material))
+                    push!(spheres, sphere(center, 0.2, sphere_material))
                 end
             end
         end
     end
 
     material1 = dielectric(1.5)
-    add!(world, sphere(point3(0,1,0), 1.0, material1))
+    push!(spheres, sphere(point3(0,1,0), 1.0, material1))
 
     material2 = lambertian(color(0.4,0.2,0.1))
-    add!(world, sphere(point3(-4,1,0), 1.0, material2))
+    push!(spheres, sphere(point3(-4,1,0), 1.0, material2))
 
     material3 = metal(color(0.7,0.6,0.5), 0.0)
-    add!(world, sphere(point3(4,1,0), 1.0, material3))
+    push!(spheres, sphere(point3(4,1,0), 1.0, material3))
 
-    return world
+    return hittable_list(Dict(sphere => spheres, moving_sphere => msphers))
 end
 
 function main(io_out=stdout)
@@ -68,8 +69,8 @@ function main(io_out=stdout)
     aspect_ratio = 16 / 9
     image_width = 400
     image_height = trunc(Int, image_width / aspect_ratio)
-    samples_per_pixel = 100
-    max_depth = 50
+    samples_per_pixel = 50
+    max_depth = 16
 
     # World
     worldgen = now()
@@ -90,7 +91,9 @@ function main(io_out=stdout)
     start_time = now()
     print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
-    Threads.@threads for i in 1:image_width
+    Threads.@threads :static for i in 1:image_width
+        print(stderr, "\rScanlines remaining: ", (image_width - i))
+        flush(stderr)
         for j in 1:image_height
             pixel_color = color(0.0,0.0,0.0)
             for _ in 1:samples_per_pixel
@@ -111,5 +114,5 @@ function main(io_out=stdout)
         end
     end
 
-    print(stderr, "Took ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
+    print(stderr, "\nTook ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
 end
