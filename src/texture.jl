@@ -52,9 +52,10 @@ end
 
 struct noise_texture <: texture
     noise::perlin
+    scale::Float64
 end
-noise_texture() = noise_texture(perlin())
+noise_texture(scale=0.0) = noise_texture(perlin(), scale)
 
 function value(nt::noise_texture, _::Float64, _::Float64, p::point3)
-    return color(1,1,1) * noise(nt.noise, p)
+    return color(1,1,1) * noise(nt.noise, nt.scale*p)
 end
