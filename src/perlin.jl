@@ -34,6 +34,10 @@ function noise(gen::perlin, p::point3)
     uf = p.x - ui
     vf = p.y - vi
     wf = p.z - wi
+    # hermitian smoothing
+    uf = uf*uf*(3.0-2.0*uf)
+    vf = vf*vf*(3.0-2.0*vf)
+    wf = wf*wf*(3.0-2.0*wf)
 
     i = unsafe_trunc(Int, ui)
     j = unsafe_trunc(Int, vi)
