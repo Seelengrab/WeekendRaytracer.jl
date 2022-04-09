@@ -30,8 +30,9 @@ end
 function two_perlin_spheres()
     objs = sphere[]
     pertext = turbulent_texture(2)
+    marbletext = marble_texture(2)
     push!(objs, sphere(point3(0,-1000,0), 1000, lambertian(pertext)))
-    push!(objs, sphere(point3(0,2,0), 2, lambertian(pertext)))
+    push!(objs, sphere(point3(0,2,0), 2, lambertian(marbletext)))
 
     return hittable_list(objs)
 end

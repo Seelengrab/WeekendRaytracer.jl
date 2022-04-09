@@ -67,5 +67,15 @@ end
 turbulent_texture(scale=0.0) = turbulent_texture(perlin(), scale)
 
 function value(tt::turbulent_texture, _::Float64, _::Float64, p::point3)
+    return color(1,1,1) * turbulence(tt.noise, tt.scale * p)
+end
+
+struct marble_texture <: texture
+    noise::perlin
+    scale::Float64
+end
+marble_texture(scale=0.0) = marble_texture(perlin(), scale)
+
+function value(tt::marble_texture, _::Float64, _::Float64, p::point3)
     return color(1,1,1) * 0.5 * (1.0 + sin(tt.scale * p.z + 10*turbulence(tt.noise, tt.scale * p)))
 end
