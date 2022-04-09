@@ -45,3 +45,16 @@ function value(ct::checker_texture_3D, u::Float64, v::Float64, p::point3)
         return value(ct.even, u, v, p)
     end
 end
+
+#####
+# noise texture
+#####
+
+struct noise_texture <: texture
+    noise::perlin
+end
+noise_texture() = noise_texture(perlin())
+
+function value(nt::noise_texture, _::Float64, _::Float64, p::point3)
+    return color(1,1,1) * noise(nt.noise, p)
+end

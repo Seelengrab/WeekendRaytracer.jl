@@ -18,11 +18,20 @@ function ray_color(r::ray, world::hittable, depth::Int)
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
 end
 
-function two_speheres()
+function two_spheres()
     objs = sphere[]
     checker = checker_texture_3D(color(0.2,0.3,0.1), color(0.9,0.9,0.9))
     push!(objs, sphere(point3(0,-10,0), 10, lambertian(checker)))
     push!(objs, sphere(point3(0, 10,0), 10, lambertian(checker)))
+
+    return hittable_list(objs)
+end
+
+function two_perlin_spheres()
+    objs = sphere[]
+    pertext = noise_texture()
+    push!(objs, sphere(point3(0,-1000,0), 1000, lambertian(pertext)))
+    push!(objs, sphere(point3(0,2,0), 2, lambertian(pertext)))
 
     return hittable_list(objs)
 end
@@ -94,8 +103,13 @@ function main(io_out=stdout)
         lookat = point3(0,0,0)
         vfov = 20.0
         aperture = 0.1
+    elseif scene == 2
+        world = two_spheres()
+        lookfrom = point3(13,2,3)
+        lookat = point3(0,0,0)
+        vfov = 20.0
     else
-        world = two_speheres()
+        world = two_perlin_spheres()
         lookfrom = point3(13,2,3)
         lookat = point3(0,0,0)
         vfov = 20.0

@@ -5,6 +5,7 @@ using Dates
 using Random
 
 include("vec3.jl")
+include("perlin.jl")
 include("color.jl")
 include("ray.jl")
 include("camera.jl")
