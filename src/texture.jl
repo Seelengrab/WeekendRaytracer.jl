@@ -57,5 +57,5 @@ end
 noise_texture(scale=0.0) = noise_texture(perlin(), scale)
 
 function value(nt::noise_texture, _::Float64, _::Float64, p::point3)
-    return color(1,1,1) * noise(nt.noise, nt.scale*p)
+    return color(1,1,1) * 0.5 * (1.0 + noise(nt.noise, nt.scale*p))
 end

@@ -91,6 +91,8 @@ end
 
 """
 A singleton type for picking a random vector in the unit sphere.
+
+Produces a `vec3` with x, y and z in [-1,1].
 """
 struct InUnitSphere end
 Base.eltype(::Type{InUnitSphere}) = vec3
@@ -105,6 +107,8 @@ end
 
 """
 A singleton type for picking a random vector in the unit disk.
+
+Prdouces a vec3 with x and y in [-1,1] and z = 0.
 """
 struct InUnitDisk end
 Base.eltype(::Type{InUnitDisk}) = vec3
