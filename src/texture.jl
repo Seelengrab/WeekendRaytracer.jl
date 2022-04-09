@@ -59,3 +59,13 @@ noise_texture(scale=0.0) = noise_texture(perlin(), scale)
 function value(nt::noise_texture, _::Float64, _::Float64, p::point3)
     return color(1,1,1) * 0.5 * (1.0 + noise(nt.noise, nt.scale*p))
 end
+
+struct turbulent_texture <: texture
+    noise::perlin
+    scale::Float64
+end
+turbulent_texture(scale=0.0) = turbulent_texture(perlin(), scale)
+
+function value(tt::turbulent_texture, _::Float64, _::Float64, p::point3)
+    return color(1,1,1) * turbulence(tt.noise, tt.scale * p)
+end

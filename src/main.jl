@@ -29,7 +29,7 @@ end
 
 function two_perlin_spheres()
     objs = sphere[]
-    pertext = noise_texture(4)
+    pertext = turbulent_texture(4)
     push!(objs, sphere(point3(0,-1000,0), 1000, lambertian(pertext)))
     push!(objs, sphere(point3(0,2,0), 2, lambertian(pertext)))
 

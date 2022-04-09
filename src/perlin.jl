@@ -54,6 +54,20 @@ function noise(gen::perlin, p::point3)
     return trilinear_interpolate(c, uf, vf, wf)
 end
 
+function turbulence(n::perlin, p::point3, depth=7)
+    accum = 0.0
+    temp_p = p
+    weight = 1.0
+
+    for _ in 1:depth
+        accum += weight * noise(n, temp_p)
+        weight *= 0.5
+        temp_p *= 2.0
+    end
+
+    return abs(accum)
+end
+
 function trilinear_interpolate(c, u::Float64, v::Float64, w::Float64)
     uu = u*u*(3.0-2.0*u)
     vv = v*v*(3.0-2.0*v)
