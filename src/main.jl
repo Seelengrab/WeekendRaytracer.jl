@@ -83,6 +83,24 @@ function random_scene()
     return hittable_list(Dict(sphere => spheres, moving_sphere => msphers))
 end
 
+function render!(buffer, world, cam, max_depth, samples_per_pixel)
+    image_height, image_width = size(buffer)
+    Threads.@threads :static for i in 1:image_width
+        print(stderr, "\rScanlines remaining: ", (image_width - i))
+        flush(stderr)
+        for j in 1:image_height
+            pixel_color = color(0.0,0.0,0.0)
+            for s in 1:samples_per_pixel
+                u = (i + rand(Float64)) / (image_width-1)
+                v = (j + rand(Float64)) / (image_height-1)
+                r = get_ray(cam, u, v)
+                pixel_color += ray_color(r, world, max_depth)
+            end
+            @inbounds buffer[j, i] = pixel_color
+        end
+    end
+end
+
 function main(io_out=stdout)
     # Image
     aspect_ratio = 16 / 9
@@ -127,20 +145,8 @@ function main(io_out=stdout)
     start_time = now()
     print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
-    Threads.@threads :static for i in 1:image_width
-        print(stderr, "\rScanlines remaining: ", (image_width - i))
-        flush(stderr)
-        for j in 1:image_height
-            pixel_color = color(0.0,0.0,0.0)
-            for _ in 1:samples_per_pixel
-                u = (i + rand(Float64)) / (image_width-1)
-                v = (j + rand(Float64)) / (image_height-1)
-                r = get_ray(cam, u, v)
-                pixel_color += ray_color(r, world, max_depth)
-            end
-            @inbounds output[j, i] = pixel_color
-        end
-    end
+    render!(output, world, cam, max_depth, samples_per_pixel
+)
     render_time = now()
 
     for r in reverse(axes(output, 1))
