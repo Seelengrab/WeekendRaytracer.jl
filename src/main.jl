@@ -18,12 +18,21 @@ function ray_color(r::ray, world::hittable, depth::Int)
     return (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
 end
 
+function two_speheres()
+    objs = sphere[]
+    checker = checker_texture_3D(color(0.2,0.3,0.1), color(0.9,0.9,0.9))
+    push!(objs, sphere(point3(0,-10,0), 10, lambertian(checker)))
+    push!(objs, sphere(point3(0, 10,0), 10, lambertian(checker)))
+
+    return hittable_list(objs)
+end
+
 function random_scene()
     spheres = sphere[]
     msphers = moving_sphere[]
 
     ground_material = lambertian(color(0.5,0.5,0.5))
-    checker = checker_texture(color(0.2,0.3,0.1), color(0.9,0.9,0.9))
+    checker = checker_texture_3D(color(0.2,0.3,0.1), color(0.9,0.9,0.9))
     push!(spheres, sphere(point3(0,-1000,0), 1000, lambertian(checker)))
 
     for a in -11:11
@@ -75,16 +84,28 @@ function main(io_out=stdout)
 
     # World
     worldgen = now()
-    world = random_scene()
+    vfov = 40.0
+    aperture = 0.0
+
+    scene = 0
+    if scene == 1
+        world = random_scene()
+        lookfrom = point3(13,2,3)
+        lookat = point3(0,0,0)
+        vfov = 20.0
+        aperture = 0.1
+    else
+        world = two_speheres()
+        lookfrom = point3(13,2,3)
+        lookat = point3(0,0,0)
+        vfov = 20.0
+    end
     println(stderr, "World generation took ", now() - worldgen, '.')
 
     # Camera
-    lookfrom = point3(13,2,3)
-    lookat = point3(0,0,0)
     vup = vec3(0,1,0)
     dist_to_focus = 10.0
-    aperture = 0.1
-    cam = camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0)
+    cam = camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0)
 
     # Render
     output = Matrix{vec3}(undef, image_height, image_width)

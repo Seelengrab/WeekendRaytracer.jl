@@ -1,6 +1,7 @@
 struct hittable_list <: hittable
     objects::Dict{Type{<:hittable},Union{<:bvh_node, Vector{<:hittable}}}
 end
+hittable_list(v::Vector{T}) where T = hittable_list(Dict(T => v))
 
 clear!(list::hittable_list) = empty!(list.objects)
 function add!(list::hittable_list, object::T) where T <: hittable
