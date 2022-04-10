@@ -27,6 +27,14 @@ function two_spheres()
     return hittable_list(objs)
 end
 
+function earth()
+    earth_texture = image_texture("assets/earthmap.jpg")
+    earth_surface = lambertian(earth_texture)
+    globe = sphere(point3(0,0,0), 2, earth_surface)
+
+    return hittable_list(globe)
+end
+
 function two_perlin_spheres()
     objs = sphere[]
     pertext = turbulent_texture(2)
@@ -97,12 +105,12 @@ function render!(buffer, world, cam, max_depth, samples_per_pixel)
                 r = get_ray(cam, u, v)
                 pixel_color += ray_color(r, world, max_depth)
             end
-            @inbounds buffer[j, i] = pixel_color
+            @inbounds buffer[image_height-j-1, i] = pixel_color
         end
     end
 end
 
-function main(io_out=stdout)
+function main(file_out)
     # Image
     aspect_ratio = 16 / 9
     image_width = 400
@@ -111,6 +119,7 @@ function main(io_out=stdout)
     max_depth = 16
 
     # World
+    println(stderr, "Starting world generation..")
     worldgen = now()
     vfov = 40.0
     aperture = 0.0
@@ -127,10 +136,15 @@ function main(io_out=stdout)
         lookfrom = point3(13,2,3)
         lookat = point3(0,0,0)
         vfov = 20.0
-    else
+    elseif scene == 3
         world = two_perlin_spheres()
         lookfrom = point3(13,2,3)
         lookat = point3(0,0,0)
+        vfov = 20.0
+    else
+        world = earth()
+        lookfrom = point3(13,2,3)
+        lookat = point3(0.0,0.0,0.0)
         vfov = 20.0
     end
     println(stderr, "World generation took ", now() - worldgen, '.')
@@ -142,20 +156,15 @@ function main(io_out=stdout)
 
     # Render
     output = Matrix{vec3}(undef, image_height, image_width)
-    println(stderr, "Starting renderer..")
+    println(stderr, "Starting renderer with $(Threads.nthreads()) threads..")
     start_time = now()
-    print(io_out, "P3\n", image_width, ' ', image_height, "\n255\n")
 
     render!(output, world, cam, max_depth, samples_per_pixel
 )
     render_time = now()
 
-    for r in reverse(axes(output, 1))
-        row = @view output[r, :]
-        for x in row
-            write_color(io_out, x, samples_per_pixel)
-        end
-    end
+    println(stderr, "\nSaving file to '", file_out, '\'')
+    FileIO.save(file_out, map(v -> get_rgb(v, samples_per_pixel), output))
 
-    print(stderr, "\nTook ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
+    print(stderr, "Took ", (render_time - start_time), " to render and ", (now() - render_time), " to save.\n")
 end

@@ -5,4 +5,4 @@ Pkg.activate(@__DIR__)
 
 using WeekendRaytracer
 
-WeekendRaytracer.main()
+WeekendRaytracer.main(isempty(ARGS) ? "out/image_small.png" : ARGS[1])

@@ -17,7 +17,7 @@ function get_uv(_::sphere, p::point3)
     phi = atan(-p.z, p.x) + pi
 
     u = phi / 2pi
-    v = theta / phi
+    v = theta / pi
 
     return u, v
 end

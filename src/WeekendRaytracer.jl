@@ -1,5 +1,12 @@
 module WeekendRaytracer
 
+import FileIO
+import ImageIO
+# necessary to prevent worldage issues?
+import ColorTypes
+# exclusively for final conversion when writing
+using FixedPointNumbers: N0f8
+
 using Base.Threads
 using Dates
 using Random

@@ -14,7 +14,7 @@ struct lambertian{T<:texture} <: material
 end
 lambertian(a::color) = lambertian(solid_color(a))
 
-function scatter(mat::lambertian, r_in::ray, rec)
+function scatter(mat::lambertian{T}, r_in::ray, rec) where T
     scatter_direction = rec.normal + rand(UnitVector())
 
     # Catch degenerate scatter direction
