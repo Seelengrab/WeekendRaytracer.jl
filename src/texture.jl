@@ -79,3 +79,33 @@ marble_texture(scale=0.0) = marble_texture(perlin(), scale)
 function value(tt::marble_texture, _::Float64, _::Float64, p::point3)
     return color(1,1,1) * 0.5 * (1.0 + sin(tt.scale * p.z + 10*turbulence(tt.noise, tt.scale * p)))
 end
+
+#####
+# image texture
+#####
+
+struct image_texture{T <: Matrix} <: texture
+    data::T
+end
+image_texture(s::AbstractString) = image_texture(FileIO.load(s))
+
+function value(it::image_texture, u::Float64, v::Float64, _::vec3)
+    isempty(it.data) && return color(0,1,1)
+
+    # Clamp input texture coordinates to [0,1] x [1,0]
+    u = clamp(u, 0.0, 1.0)
+    v = 1.0 - clamp(v, 0.0, 1.0) # Flip V to image coordinates
+
+    height, width = size(it.data)
+
+    i = unsafe_trunc(Int, u*width)
+    j = unsafe_trunc(Int, v*height)
+
+    # Clamp integer mapping, since actual coordinates should be less than 1.0
+    i = min(i, width-1)
+    j = min(j, height-1)
+
+    pixel = it.data[j+1, i+1]
+
+    return color(pixel.r, pixel.g, pixel.b)
+end
