@@ -2,8 +2,23 @@ abstract type material end
 
 """
     scatter(m::material, r_in::ray) -> Tuple{Bool, ray, color}
+
+Scatters the incoming ray according to the given material.
+
+Returns whether the ray was scattered (and thus `ray` is valid) and if so which color it scattered as.
 """
 function scatter end
+
+"""
+    emitter(::material, u::Float64, v::Float64, p::point3) -> color
+
+Returns the color emitted by a material at the given point & uv.
+
+If not implemented, returns `color(0.0, 0.0, 0.0)` by default.
+"""
+function emitter(::material, u::Float64, v::Float64, p::point3)
+    return color(0.0, 0.0, 0.0)
+end
 
 ####
 # Solid Color
