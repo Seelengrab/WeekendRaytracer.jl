@@ -101,6 +101,7 @@ end
 struct diffuse_light{T <: texture} <: material
     emit::T
 end
+diffuse_light(c::color) = diffuse_light(solid_color(c))
 
 function scatter(::diffuse_light, _, _)
     return false, vec3(0,0,0), color(0,0,0)

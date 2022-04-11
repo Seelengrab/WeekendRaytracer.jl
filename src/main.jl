@@ -8,6 +8,7 @@ function ray_color(r::ray, background::color, world::hittable, depth::Int)
     !got_hit && return background
 
     emitted_col = emitted(rec.mat, rec.u, rec.v, rec.p)
+
     scat, scattered, attenuation = scatter(rec.mat, r, rec)
     !scat && return emitted_col
 
@@ -136,6 +137,23 @@ function random_scene_homogenous()
     return bvh(world)
 end
 
+function simple_light()
+    objects = sphere[]
+
+    pertext = lambertian(marble_texture(4))
+    difflight = diffuse_light(color(0,0,8))
+    reclight = diffuse_light(color(8,2,3))
+
+    push!(objects, sphere(point3(0,-1000,0), 1000, pertext))
+    glass = dielectric(1.5)
+    push!(objects, sphere(point3(0,2,0), 2, glass))
+    push!(objects, sphere(point3(0,7,0), 2, difflight))
+
+    rec = xy_rect(3,5,1,3,-2, reclight)
+
+    return hittable_list(Dict(sphere => objects, xy_rect => [rec]))
+end
+
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
     Threads.@threads :static for i in 1:image_width
@@ -157,10 +175,10 @@ end
 function main(file_out)
     # Image
     aspect_ratio = 16 / 9
-    image_width = 320
+    image_width = 400
     image_height = trunc(Int, image_width / aspect_ratio)
     samples_per_pixel = 32
-    max_depth = 16
+    max_depth = 50
 
     # World
     println(stderr, "Starting world generation..")
@@ -169,7 +187,7 @@ function main(file_out)
     aperture = 0.0
     background = color(0,0,0)
 
-    scene = 1
+    scene = 0
     if scene == 1
         world = random_scene()
         background = color(0.7, 0.8, 1.0)
@@ -209,7 +227,12 @@ function main(file_out)
         vfov = 20.0
         aperture = 0.1
     else
+        world = simple_light()
+        samples_per_pixel = 400
         background = color(0,0,0)
+        lookfrom = point3(26,3,6)
+        lookat = point3(0,2,0)
+        vfov = 20.0
     end
     println(stderr, "World generation took ", now() - worldgen, '.')
 

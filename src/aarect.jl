@@ -1,10 +1,10 @@
 struct xy_rect <: hittable
-    mp::material
     x0::Float64
     x1::Float64
     y0::Float64
     y1::Float64
     k::Float64
+    mp::material
 end
 
 function bounding_box(rec::xy_rect, _::Real, _::Real)
