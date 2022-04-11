@@ -1,11 +1,28 @@
-struct bvh_node{T} <: hittable
-    left::Union{bvh_node{T}, T}
-    right::Union{bvh_node{T}, T}
+abstract type bvh <: hittable end
+struct bvh_uniform{T} <: bvh
+    left::Union{bvh_uniform{T}, T}
+    right::Union{bvh_uniform{T}, T}
     box::aabb
 end
-bvh_node(el1::T, el2::T, box::aabb) where T = bvh_node{T}(el1, el2, box)
 
-function bvh_node(src_objects::AbstractArray{<:hittable}, time0::Real, time1::Real)
+struct bvh_mixed <: bvh
+    left::hittable
+    right::hittable
+    box::aabb
+end
+
+bvh(l::T, r::T, box::aabb) where T <: hittable = bvh_uniform(l, r, box)
+bvh(l::T, r::U, box::aabb) where {T,U} = bvh_mixed(l, r, box)
+
+function bvh(objs::AbstractVector{<:bvh}, t0::Real=0.0, t1::Real=1.0)
+    isone(length(objs)) && return only(objs)
+    mid = div(length(objs), 2)
+    l = bvh(@view(objs[begin:mid]), t0, t1)
+    r = bvh(@view(objs[mid+1:end]), t0, t1)
+    bvh(l, r, surrounding_box(l.box, r.box))
+end
+
+function bvh(src_objects::AbstractVector{<:hittable}, time0::Real=0.0, time1::Real=1.0)
     axis = rand(1:3)
     comparator(a,b) = box_compare(a,b,axis)
 
@@ -22,12 +39,12 @@ function bvh_node(src_objects::AbstractArray{<:hittable}, time0::Real, time1::Re
             right = a
         end
     else
-        sort!(src_objects, lt=comparator, rev=true)
+        sort!(src_objects, lt=comparator)
 
         new_len = div(length(src_objects), 2)
 
-        left = bvh_node(@view(src_objects[begin:new_len]), time0, time1)
-        right = bvh_node(@view(src_objects[new_len+1:end]), time0, time1)
+        left = bvh(@view(src_objects[begin:new_len+1]), time0, time1)
+        right = bvh(@view(src_objects[new_len+1:end]), time0, time1)
     end
 
     hit_left, bbox_left = bounding_box(left, time0, time1)
@@ -36,17 +53,24 @@ function bvh_node(src_objects::AbstractArray{<:hittable}, time0::Real, time1::Re
     (!hit_left || !hit_right) && throw(ArgumentError("No bounding box in bvh constructor."))
 
     bbox = surrounding_box(bbox_left, bbox_right)
-    return bvh_node(left, right, bbox)
+    return bvh(left, right, bbox)
 end
 
-bounding_box(bvh::bvh_node, ::Real, ::Real) = return true, bvh.box
+bounding_box(bvh::bvh, ::Real, ::Real) = return true, bvh.box
 
-function hit(bvh::bvh_node, r::ray, t_min::Real, t_max::Real)
+@inline function hit(bvh::bvh, r::ray, t_min::Real, t_max::Real)::Tuple{Bool, hit_record}
     boxhit = hit(bvh.box, r, t_min, t_max)
     !boxhit && return false, hit_record()
 
     hit_left, rec_left = hit(bvh.left, r, t_min, t_max)
     hit_right, rec_right = hit(bvh.right, r, t_min, hit_left ? rec_left.t : t_max)
 
-    return hit_left ? (hit_left, rec_left) : (hit_right ? (hit_right, rec_right) : (false, hit_record()))
+    # we hit right last with t_max of left, so check it first
+    if hit_right
+        return true, rec_right
+    elseif hit_left
+        return true, rec_left
+    else
+        return false, hit_record()
+    end
 end
