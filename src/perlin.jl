@@ -76,9 +76,9 @@ function trilinear_interpolate(c, u::Float64, v::Float64, w::Float64)
 
     for i in 0:1, j in 0:1, k in 0:1
         weight = vec3(u-i, v-j, w-k)
-        accum += (i*u + (1-i) * (1-u)) *
-                 (j*v + (1-j) * (1-v)) *
-                 (k*w + (1-k) * (1-w)) *
+        accum += (i*uu + (1-i) * (1-uu)) *
+                 (j*vv + (1-j) * (1-vv)) *
+                 (k*ww + (1-k) * (1-ww)) *
                  dot(c[i+1,j+1,k+1], weight)
     end
 
