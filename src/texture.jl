@@ -87,7 +87,13 @@ end
 struct image_texture{T <: Matrix} <: texture
     data::T
 end
-image_texture(s::AbstractString) = image_texture(FileIO.load(s))
+function image_texture(s::AbstractString)
+    raw_data = FileIO.load(s)
+    floatmat = map(raw_data) do rgb
+        color(rgb.r, rgb.g, rgb.b)
+    end
+    image_texture(floatmat)
+end
 
 function value(it::image_texture, u::Float64, v::Float64, _::vec3)
     isempty(it.data) && return color(0,1,1)
@@ -107,5 +113,5 @@ function value(it::image_texture, u::Float64, v::Float64, _::vec3)
 
     pixel = it.data[j+1, i+1]
 
-    return color(pixel.r, pixel.g, pixel.b)
+    return color(pixel.x, pixel.y, pixel.z)
 end

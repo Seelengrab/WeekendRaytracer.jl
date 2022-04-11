@@ -32,7 +32,7 @@ function earth()
     earth_surface = lambertian(earth_texture)
     globe = sphere(point3(0,0,0), 2, earth_surface)
 
-    return hittable_list(globe)
+    return globe
 end
 
 function two_perlin_spheres()
@@ -98,14 +98,14 @@ function render!(buffer, world, cam, max_depth, samples_per_pixel)
         print(stderr, "\rScanlines remaining: ", (image_width - i))
         flush(stderr)
         for j in 1:image_height
-            pixel_color = color(0.0,0.0,0.0)
-            for s in 1:samples_per_pixel
-                u = (i + rand(Float64)) / (image_width-1)
-                v = (j + rand(Float64)) / (image_height-1)
+            pixel_color = color(0.0, 0.0, 0.0)
+            for _ in 1:samples_per_pixel
+                u = (i + rand(Float64)) / (image_width - 1)
+                v = (j + rand(Float64)) / (image_height - 1)
                 r = get_ray(cam, u, v)
                 pixel_color += ray_color(r, world, max_depth)
             end
-            @inbounds buffer[image_height-j-1, i] = pixel_color
+            @inbounds buffer[image_height-j+1, i] = pixel_color
         end
     end
 end
@@ -141,7 +141,7 @@ function main(file_out)
         lookfrom = point3(13,2,3)
         lookat = point3(0,0,0)
         vfov = 20.0
-    else
+    elseif scene == 4
         world = earth()
         lookfrom = point3(13,2,3)
         lookat = point3(0.0,0.0,0.0)
