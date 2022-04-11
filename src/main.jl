@@ -1,21 +1,17 @@
-function ray_color(r::ray, world::hittable, depth::Int)
+function ray_color(r::ray, background::color, world::hittable, depth::Int)
     # stop infinite recursion
     if depth <= 0
         return color(0, 0, 0)
     end
 
     got_hit, rec = hit(world, r, 1e-4, Inf)::Tuple{Bool, hit_record}
-    if got_hit
-        scat, scattered, attenuation = scatter(rec.mat, r, rec)
-        if scat
-            return attenuation * ray_color(scattered, world, depth - 1)
-        end
-        return color(0, 0, 0)
-    end
+    !got_hit && return background
 
-    unit_direction = unit_vector(direction(r))
-    t = 0.5 * (unit_direction.y + 1.0)
-    return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
+    emitted_col = emitted(rec.mat, rec.u, rec.v, rec.p)
+    scat, scattered, attenuation = scatter(rec.mat, r, rec)
+    !scat && return emitted_col
+
+    return emitted_col + attenuation * ray_color(scattered, background, world, depth - 1)
 end
 
 function two_spheres()
@@ -140,7 +136,7 @@ function random_scene_homogenous()
     return bvh(world)
 end
 
-function render!(buffer, world, cam, max_depth, samples_per_pixel)
+function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
     Threads.@threads :static for i in 1:image_width
         print(stderr, "\rScanlines remaining: ", (image_width - i))
@@ -151,7 +147,7 @@ function render!(buffer, world, cam, max_depth, samples_per_pixel)
                 u = (i + rand(Float64)) / (image_width - 1)
                 v = (j + rand(Float64)) / (image_height - 1)
                 r = get_ray(cam, u, v)
-                pixel_color += ray_color(r, world, max_depth)
+                pixel_color += ray_color(r, background, world, max_depth)
             end
             @inbounds buffer[image_height-j+1, i] = pixel_color
         end
@@ -171,40 +167,49 @@ function main(file_out)
     worldgen = now()
     vfov = 40.0
     aperture = 0.0
+    background = color(0,0,0)
 
     scene = 1
     if scene == 1
         world = random_scene()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(13, 2, 3)
         lookat = point3(0, 0, 0)
         vfov = 20.0
         aperture = 0.1
     elseif scene == 2
         world = two_spheres()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(13, 2, 3)
         lookat = point3(0, 0, 0)
         vfov = 20.0
     elseif scene == 3
         world = two_perlin_spheres()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(13, 2, 3)
         lookat = point3(0, 0, 0)
         vfov = 20.0
     elseif scene == 4
         world = earth()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(13, 2, 3)
         lookat = point3(0.0, 0.0, 0.0)
         vfov = 20.0
     elseif scene == 5
         world = a_few_spheres()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(33, 0, 0)
         lookat = point3(0.0, 0.0, 0.0)
         vfov = 20.0
-    else
+    elseif scene == 6
         world = random_scene_homogenous()
+        background = color(0.7, 0.8, 1.0)
         lookfrom = point3(13, 2, 3)
         lookat = point3(0, 0, 0)
         vfov = 20.0
         aperture = 0.1
+    else
+        background = color(0,0,0)
     end
     println(stderr, "World generation took ", now() - worldgen, '.')
 
@@ -218,8 +223,7 @@ function main(file_out)
     println(stderr, "Starting renderer with $(Threads.nthreads()) threads..")
     start_time = now()
 
-    render!(output, world, cam, max_depth, samples_per_pixel
-    )
+    render!(output, world, cam, max_depth, samples_per_pixel, background)
     render_time = now()
 
     println(stderr, "\nSaving file to '", file_out, '\'')

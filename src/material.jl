@@ -10,13 +10,13 @@ Returns whether the ray was scattered (and thus `ray` is valid) and if so which 
 function scatter end
 
 """
-    emitter(::material, u::Float64, v::Float64, p::point3) -> color
+    emitted(::material, u::Float64, v::Float64, p::point3) -> color
 
 Returns the color emitted by a material at the given point & uv.
 
 If not implemented, returns `color(0.0, 0.0, 0.0)` by default.
 """
-function emitter(::material, u::Float64, v::Float64, p::point3)
+function emitted(::material, u::Float64, v::Float64, p::point3)
     return color(0.0, 0.0, 0.0)
 end
 
@@ -104,4 +104,8 @@ end
 
 function scatter(::diffuse_light, _, _)
     return false, vec3(0,0,0), color(0,0,0)
+end
+
+function emitted(dl::diffuse_light, u::Float64, v::Float64, p::point3)
+    value(dl.emit, u, v, p)
 end
