@@ -24,6 +24,7 @@ include("bvh.jl")
 include("hittable_list.jl")
 include("sphere.jl")
 include("moving_sphere.jl")
+include("aarect.jl")
 include("main.jl")
 
 end # module WeekendRaytracer
