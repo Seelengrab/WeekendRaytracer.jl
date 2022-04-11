@@ -5,8 +5,8 @@ end
 aabb() = aabb(zero(point3), zero(point3))
 
 function box_compare(a::hittable, b::hittable, axis::Int)
-    has_bba, bboxa = bounding_box(a, 0.0, 1.0)
-    has_bbb, bboxb = bounding_box(b, 0.0, 1.0)
+    has_bba, bboxa = bounding_box(a, 0.0, 0.0)
+    has_bbb, bboxb = bounding_box(b, 0.0, 0.0)
 
     (!has_bba || !has_bbb) && throw(ArgumentError("hittable doesn't have a bounding box: '$a'"))
 
@@ -26,7 +26,7 @@ function hit(bbox::aabb, r::ray, t_min::Float64, t_max::Float64)
         ret &= t_max > t_min
     end
 
-    return true
+    return ret
 end
 
 function surrounding_box(b0::aabb, b1::aabb)
