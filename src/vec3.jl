@@ -115,7 +115,7 @@ Base.eltype(::Type{InUnitDisk}) = vec3
 Random.Sampler(_::Type{<:AbstractRNG}, ud::InUnitDisk) = Random.SamplerTrivial(ud)
 function Random.rand(rng::AbstractRNG, _::Random.SamplerTrivial{InUnitDisk})
     while true
-        p = vec3(rand(BoundedFloat64(-1,1)),rand(BoundedFloat64(-1,1)), 0)
+        p = vec3(rand(rng, BoundedFloat64(-1,1)),rand(rng, BoundedFloat64(-1,1)), 0)
         length²(p) >= 1 && continue
         return p
     end
