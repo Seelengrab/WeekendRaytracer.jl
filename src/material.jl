@@ -14,7 +14,7 @@ struct lambertian{T<:texture} <: material
 end
 lambertian(a::color) = lambertian(solid_color(a))
 
-function scatter(mat::lambertian{T}, r_in::ray, rec) where T
+function scatter(mat::lambertian, r_in::ray, rec)
     scatter_direction = rec.normal + rand(UnitVector())
 
     # Catch degenerate scatter direction
@@ -77,4 +77,16 @@ function reflectance(cosine::Float64, ref_idx::Float64)
     r0 = (1-ref_idx) / (1+ref_idx)
     r0 *= r0
     return r0 + (1-r0)*(1-cosine)^5
+end
+
+#####
+# diffuse light
+#####
+
+struct diffuse_light{T <: texture} <: material
+    emit::T
+end
+
+function scatter(::diffuse_light, _, _)
+    return false, vec3(0,0,0), color(0,0,0)
 end

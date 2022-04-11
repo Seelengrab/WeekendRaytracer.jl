@@ -56,7 +56,7 @@ end
     return true, rec
 end
 
-function bounding_box(s::sphere, t0::Real, t1::Real)
+function bounding_box(s::sphere, _::Real, _::Real)
     return true, aabb(s.center - vec3(s.radius, s.radius, s.radius),
                       s.center + vec3(s.radius, s.radius, s.radius))
 end
