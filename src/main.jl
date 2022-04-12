@@ -150,9 +150,30 @@ function simple_light()
     push!(objects, sphere(point3(0,7,0), 2, difflight))
 
     rec = xy_rect(3,5,1,3,-2, reclight)
+    rec2 = xy_rect(3,5,1,3,2, diffuse_light(color(2,9,3)))
 
-    return hittable_list(Dict(sphere => objects, xy_rect => [rec]))
+    return hittable_list(Dict(sphere => objects, xy_rect => [rec,rec2]))
 end
+
+function cornell_box()
+    xy = xy_rect[]
+    xz = xz_rect[]
+    yz = yz_rect[]
+
+    red = lambertian(color(.65,.05,.05))
+    white = lambertian(color(.73,.73,.73))
+    green = lambertian(color(.12,.45,.15))
+    light = diffuse_light(color(15,15,15))
+
+    push!(yz, yz_rect(0,555,0,555,555, green))
+    push!(yz, yz_rect(0,555,0,555,0, red))
+    push!(xz, xz_rect(213,343,227,332,554, light))
+    push!(xz, xz_rect(0,555,0,555,0, white))
+    push!(xz, xz_rect(0,555,0,555,555, white))
+    push!(xy, xy_rect(0,555,0,555,555, white))
+
+    return hittable_list(Dict(xy_rect => xy, xz_rect => xz, yz_rect => yz)
+)end
 
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
@@ -176,7 +197,6 @@ function main(file_out)
     # Image
     aspect_ratio = 16 / 9
     image_width = 400
-    image_height = trunc(Int, image_width / aspect_ratio)
     samples_per_pixel = 32
     max_depth = 50
 
@@ -226,19 +246,29 @@ function main(file_out)
         lookat = point3(0, 0, 0)
         vfov = 20.0
         aperture = 0.1
-    else
+    elseif scene == 7
         world = simple_light()
         samples_per_pixel = 400
         background = color(0,0,0)
         lookfrom = point3(26,3,6)
         lookat = point3(0,2,0)
         vfov = 20.0
+    else
+        world = cornell_box()
+        aspect_ratio = 1.0
+        image_width = 600
+        samples_per_pixel = 200
+        background = color(0,0,0)
+        lookfrom = point3(278,278,-800)
+        lookat = point3(278,278,0)
+        vfov = 40.0
     end
     println(stderr, "World generation took ", now() - worldgen, '.')
 
     # Camera
     vup = vec3(0, 1, 0)
-    dist_to_focus = 10.0
+    dist_to_focus = 20.0
+    image_height = trunc(Int, image_width / aspect_ratio)
     cam = camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0)
 
     # Render
