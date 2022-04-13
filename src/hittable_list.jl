@@ -1,12 +1,13 @@
 struct hittable_list <: hittable
     objects::Dict{DataType, Union{bvh, Vector{<:hittable}}}
 end
+hittable_list() = hittable_list(Dict{DataType, Union{bvh, Vector{<:hittable}}}())
 hittable_list(v::T) where T <: hittable = hittable_list(Dict(T => [v]))
 hittable_list(v::Vector{T}) where T <: hittable = hittable_list(Dict(T => v))
 
 clear!(list::hittable_list) = empty!(list.objects)
 function add!(list::hittable_list, object::T) where T <: hittable
-    push!(list.objects, object)
+    push!(get!(() -> T[], list.objects, T), object)
 end
 Base.values(t::hittable_list) = values(t.objects)
 

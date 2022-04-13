@@ -156,24 +156,25 @@ function simple_light()
 end
 
 function cornell_box()
-    xy = xy_rect[]
-    xz = xz_rect[]
-    yz = yz_rect[]
+    list = hittable_list()
 
     red = lambertian(color(.65,.05,.05))
     white = lambertian(color(.73,.73,.73))
     green = lambertian(color(.12,.45,.15))
     light = diffuse_light(color(15,15,15))
 
-    push!(yz, yz_rect(0,555,0,555,555, green))
-    push!(yz, yz_rect(0,555,0,555,0, red))
-    push!(xz, xz_rect(213,343,227,332,554, light))
-    push!(xz, xz_rect(0,555,0,555,0, white))
-    push!(xz, xz_rect(0,555,0,555,555, white))
-    push!(xy, xy_rect(0,555,0,555,555, white))
+    add!(list, yz_rect(0,555,0,555,555, green))
+    add!(list, yz_rect(0,555,0,555,0, red))
+    add!(list, xz_rect(213,343,227,332,554, light))
+    add!(list, xz_rect(0,555,0,555,0, white))
+    add!(list, xz_rect(0,555,0,555,555, white))
+    add!(list, xy_rect(0,555,0,555,555, white))
 
-    return hittable_list(Dict(xy_rect => xy, xz_rect => xz, yz_rect => yz)
-)end
+    add!(list, box(point3(130,0, 65), point3(295,165,230), white))
+    add!(list, box(point3(265,0,295), point3(430,330,460), white))
+
+    return list
+end
 
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
