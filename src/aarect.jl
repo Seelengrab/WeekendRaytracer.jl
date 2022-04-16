@@ -40,33 +40,34 @@ function bounding_box(rec::yz_rect, _::Float64, _::Float64)
                           point3(rec.k + 0.0001, rec.y1, rec.z1))
 end
 
-function hit(rec::T, r::ray, t_min::Float64, t_max::Float64) where T <: Union{xy_rect,xz_rect,yz_rect}
-    o = origin(r)
-    d = direction(r)
-    r_a,r_b,r_c,d_a,d_b,d_c = if T <: xy_rect
-        o.x,o.y,o.z,d.x,d.y,d.z
-    elseif T <: xz_rect
-        o.x,o.z,o.y,d.x,d.z,d.y
+function hit(rec::Union{xy_rect, yz_rect, xz_rect}, r::ray, t_min::Float64, t_max::Float64)
+    ori = origin(r)
+    dir = direction(r)
+
+    ori_a, ori_b, ori_c, dir_a, dir_b, dir_c = if rec isa xy_rect
+        ori.x, ori.y, ori.z, dir.x, dir.y, dir.z
+    elseif rec isa xz_rect
+        ori.x, ori.z, ori.y, dir.x, dir.z, dir.y
     else
-        o.y,o.z,o.x,d.y,d.z,d.x
+        ori.y, ori.z, ori.x, dir.y, dir.z, dir.x
     end
 
-    t = (rec.k - r_c) / d_c
+    t = (rec.k - ori_c) / dir_c
     if (t < t_min || t > t_max)
         return false, hit_record()
     end
 
-    a = r_a + t*d_a
-    b = r_b + t*d_b
+    ax_a = ori_a + t*dir_a
+    ax_b = ori_b + t*dir_b
 
-    if (a < getfield(rec, 1) || a > getfield(rec, 2) ||
-        b < getfield(rec, 3) || b > getfield(rec, 4))
+    if (ax_a < getfield(rec, 1) || ax_a > getfield(rec, 2) ||
+        ax_b < getfield(rec, 3) || ax_b > getfield(rec, 4))
         return false, hit_record()
     end
 
-    u = (a - getfield(rec, 1)) / (getfield(rec, 2) - getfield(rec, 1))
-    v = (b - getfield(rec, 3)) / (getfield(rec, 4) - getfield(rec, 3))
-    outward_normal = vec3(0,0,1)
+    u = (ax_a - getfield(rec, 1)) / (getfield(rec, 2) - getfield(rec, 1))
+    v = (ax_b - getfield(rec, 3)) / (getfield(rec, 4) - getfield(rec, 3))
+    outward_normal = vec3(rec isa yz_rect, rec isa xz_rect, rec isa xy_rect)
     ff, fn = face_normal(r, outward_normal)
     ret = hit_record(at(r, t),
                      fn,

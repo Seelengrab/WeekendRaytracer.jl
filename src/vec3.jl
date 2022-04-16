@@ -46,7 +46,7 @@ end
 
 function near_zero(v::vec3)
     s = 1e-8
-    return abs(v.x) < s && abs(v.y) < s && abs(v.z) < s
+    return (abs(v.x) < s) && (abs(v.y) < s) && (abs(v.z) < s)
 end
 
 function reflect(v::vec3, n::vec3)
@@ -92,7 +92,7 @@ end
 """
 A singleton type for picking a random vector in the unit sphere.
 
-Produces a `vec3` with x, y and z in [-1,1].
+Produces a `vec3` with x, y and z in [-1,1], normalized to length 1.
 """
 struct InUnitSphere end
 Base.eltype(::Type{InUnitSphere}) = vec3

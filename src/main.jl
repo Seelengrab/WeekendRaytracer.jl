@@ -141,18 +141,16 @@ function simple_light()
     objects = sphere[]
 
     pertext = lambertian(marble_texture(4))
-    difflight = diffuse_light(color(0,0,8))
-    reclight = diffuse_light(color(8,2,3))
+    reclight = diffuse_light(color(4,4,4))
 
     push!(objects, sphere(point3(0,-1000,0), 1000, pertext))
     glass = dielectric(1.5)
-    push!(objects, sphere(point3(0,2,0), 2, glass))
-    push!(objects, sphere(point3(0,7,0), 2, difflight))
+    push!(objects, sphere(point3(0,2,0), 2, pertext))
+    #push!(objects, sphere(point3(0,7,0), 2, reclight))
 
     rec = xy_rect(3,5,1,3,-2, reclight)
-    rec2 = xy_rect(3,5,1,3,2, diffuse_light(color(2,9,3)))
 
-    return hittable_list(Dict(sphere => objects, xy_rect => [rec,rec2]))
+    return hittable_list(Dict(sphere => objects, xy_rect => [rec]))
 end
 
 function cornell_box()
@@ -178,7 +176,7 @@ end
 
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
-    Threads.@threads :static for i in 1:image_width
+    Threads.@threads :dynamic for i in 1:image_width
         print(stderr, "\rScanlines remaining: ", (image_width - i))
         flush(stderr)
         for j in 1:image_height
@@ -198,7 +196,7 @@ function main(file_out)
     # Image
     aspect_ratio = 16 / 9
     image_width = 400
-    samples_per_pixel = 32
+    samples_per_pixel = 200
     max_depth = 50
 
     # World
@@ -268,7 +266,7 @@ function main(file_out)
 
     # Camera
     vup = vec3(0, 1, 0)
-    dist_to_focus = 20.0
+    dist_to_focus = 10.0
     image_height = trunc(Int, image_width / aspect_ratio)
     cam = camera(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0)
 
