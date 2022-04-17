@@ -168,8 +168,15 @@ function cornell_box()
     add!(list, xz_rect(0,555,0,555,555, white))
     add!(list, xy_rect(0,555,0,555,555, white))
 
-    add!(list, box(point3(130,0, 65), point3(295,165,230), white))
-    add!(list, box(point3(265,0,295), point3(430,330,460), white))
+    box1 = box(point3(0,0,0), point3(165, 330, 165), white)
+    box1 = y_rotate(box1, 15.0)
+    box1 = translate(box1, vec3(256,0,295))
+    add!(list, box1)
+
+    box2 = box(point3(0,0,0), point3(165, 165, 165), white)
+    box2 = y_rotate(box2, -18.0)
+    box2 = translate(box2, vec3(130,0,65))
+    add!(list, box2)
 
     return list
 end

@@ -4,7 +4,7 @@ struct aabb
 end
 aabb() = aabb(zero(point3), zero(point3))
 
-function box_compare(a::hittable, b::hittable, axis::Int)
+function box_compare(a, b, axis::Int)
     has_bba, bboxa = bounding_box(a, 0.0, 1.0)
     has_bbb, bboxb = bounding_box(b, 0.0, 1.0)
 
