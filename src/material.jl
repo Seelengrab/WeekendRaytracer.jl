@@ -110,3 +110,18 @@ end
 function emitted(dl::diffuse_light, u::Float64, v::Float64, p::point3)
     value(dl.emit, u, v, p)
 end
+
+#####
+# isotropic
+#####
+
+struct isotropic{T <: texture} <: material
+    albedo::T
+end
+isotropic(c::color) = isotropic(solid_color(c))
+
+function scatter(i::isotropic, r_in::ray, rec)
+    scat = ray(rec.p, rand(InUnitSphere()), time(r_in))
+    att = value(i.albedo, rec.u, rec.v, rec.p)
+    return true, scat, att
+end

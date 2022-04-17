@@ -181,6 +181,34 @@ function cornell_box()
     return list
 end
 
+function cornell_smoke()
+    list = hittable_list()
+
+    red = lambertian(color(.65,.05,.05))
+    white = lambertian(color(.73,.73,.73))
+    green = lambertian(color(.12,.45,.15))
+    light = diffuse_light(color(7,7,7))
+
+    add!(list, yz_rect(0,555,0,555,555, green))
+    add!(list, yz_rect(0,555,0,555,0, red))
+    add!(list, xz_rect(113,443,127,432,554, light))
+    add!(list, xz_rect(0,555,0,555,0, white))
+    add!(list, xz_rect(0,555,0,555,555, white))
+    add!(list, xy_rect(0,555,0,555,555, white))
+
+    box1 = box(point3(0,0,0), point3(165, 330, 165), white)
+    box1 = y_rotate(box1, 15.0)
+    box1 = translate(box1, vec3(256,0,295))
+    add!(list, constant_medium(box1, 0.01, color(0,0,0)))
+
+    box2 = box(point3(0,0,0), point3(165, 165, 165), white)
+    box2 = y_rotate(box2, -18.0)
+    box2 = translate(box2, vec3(130,0,65))
+    add!(list, constant_medium(box2, 0.01, color(1,1,1)))
+
+    return list
+end
+
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
     Threads.@threads :dynamic for i in 1:image_width
@@ -259,8 +287,17 @@ function main(file_out)
         lookfrom = point3(26,3,6)
         lookat = point3(0,2,0)
         vfov = 20.0
-    else
+    elseif scene == 8
         world = cornell_box()
+        aspect_ratio = 1.0
+        image_width = 600
+        samples_per_pixel = 200
+        background = color(0,0,0)
+        lookfrom = point3(278,278,-800)
+        lookat = point3(278,278,0)
+        vfov = 40.0
+    else
+        world = cornell_smoke()
         aspect_ratio = 1.0
         image_width = 600
         samples_per_pixel = 200
