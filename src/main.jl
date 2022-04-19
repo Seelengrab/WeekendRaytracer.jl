@@ -209,6 +209,65 @@ function cornell_smoke()
     return list
 end
 
+function final_scene()
+    boxes1 = box[]
+
+    ground = lambertian(color(0.48,0.83,0.53))
+
+    boxes_per_side = 20
+    for i in 0:boxes_per_side-1, j in 0:boxes_per_side-1
+        w = 100.0
+        x0 = -1000.0 + i*w
+        z0 = -1000.0 + j*w
+        y0 = 0.0
+        x1 = x0 + w
+        y1 = rand(BoundedFloat64(1.0,101.0))
+        z1 = z0 + w
+
+        push!(boxes1, box(point3(x0,y0,z0), point3(x1,y1,z1), ground))
+    end
+
+    objects = hittable_list()
+
+    add!(objects, bvh(boxes1, 0.0, 1.0))
+
+    light = diffuse_light(color(7,7,7))
+    add!(objects, xz_rect(123,423,147,412,554, light))
+
+    center1 = point3(400,400,200)
+    center2 = center1 + vec3(30,0,0)
+
+    moving_sphere_material = lambertian(color(0.7,0.3,0.1))
+    add!(objects, moving_sphere(center1, center2, 0.0, 1.0, 50.0, moving_sphere_material))
+
+    add!(objects, sphere(point3(260, 150, 45), 50.0, dielectric(1.5)))
+    add!(objects, sphere(point3(0.0,150.0,145.0), 50.0, metal(color(0.8,0.8,0.9), 1.0)))
+
+    boundary = sphere(point3(360,150,145), 70, dielectric(1.5))
+    add!(objects, boundary)
+    add!(objects, constant_medium(boundary, 0.2, color(0.2,0.4,0.9)))
+    boundary =sphere(point3(0,0,0), 5000, dielectric(1.5))
+    add!(objects, constant_medium(boundary, 0.0001, color(1,1,1)))
+
+    emat = lambertian(image_texture("assets/earthmap.jpg"))
+    add!(objects, sphere(point3(400,200,400), 100, emat))
+    pertext = noise_texture(0.1)
+    add!(objects, sphere(point3(220,280,300), 80, lambertian(pertext)))
+
+    boxes2 = sphere[]
+    white = lambertian(color(0.73,0.73,0.73))
+    ns = 1000
+    for _ in 1:ns
+        push!(boxes2, sphere(rand(BoundedVec3(0,165)), 10, white))
+    end
+
+    add!(objects, translate(
+        y_rotate(bvh(boxes2, 0.0, 1.0), 15.0),
+        vec3(-100, 270, 395)))
+
+    return objects
+end
+
 function render!(buffer, world, cam, max_depth, samples_per_pixel, background)
     image_height, image_width = size(buffer)
     Threads.@threads :dynamic for i in 1:image_width
@@ -296,7 +355,7 @@ function main(file_out)
         lookfrom = point3(278,278,-800)
         lookat = point3(278,278,0)
         vfov = 40.0
-    else
+    elseif scene == 9
         world = cornell_smoke()
         aspect_ratio = 1.0
         image_width = 600
@@ -304,6 +363,15 @@ function main(file_out)
         background = color(0,0,0)
         lookfrom = point3(278,278,-800)
         lookat = point3(278,278,0)
+        vfov = 40.0
+    else
+        world = final_scene()
+        aspect_ratio = 1.0
+        image_width = 800
+        samples_per_pixel = 10000
+        background = color(0,0,0)
+        lookfrom = point3(478,278, -600)
+        lookat = point3(278, 278, 0)
         vfov = 40.0
     end
     println(stderr, "World generation took ", now() - worldgen, '.')
